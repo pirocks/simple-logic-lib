@@ -405,3 +405,10 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+.idea/
+nd-thing.iml
+/.idea/compiler.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/kotlinc.xml
