@@ -13,4 +13,9 @@ object UUIDUtil {
         usedUUIDS.add(randomUUID)
         return randomUUID
     }
+
+    fun toPrettyString(uuid: UUID): String = "VariableNumber" + Math.abs((uuid.mostSignificantBits + uuid.leastSignificantBits).toInt()).toShort().toString(16).replace('-','0')
+
+    fun toMathML2(uuid: UUID): String = "<mi>" + toPrettyString(uuid) + "</mi>"
+
 }
