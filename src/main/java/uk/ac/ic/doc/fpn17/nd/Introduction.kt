@@ -3,24 +3,23 @@ package uk.ac.ic.doc.fpn17.nd
 import uk.ac.ic.doc.fpn17.logic.*
 import java.util.*
 
-class ForAllIntroduction(val varUUID: UUID, val children: List<NDStatement>, val targetStatementWithoutQuantifier: FOLFormula) : NDIntroductionStatement {
+/**
+ * A for all introduction has a forall const leading to a conclusion. end result removes forall cconst and replaces with general
+ * statement
+ */
+class ForAllIntroduction(val forAllConst:UUID,val desiredForAllvarUUID: UUID, val children: List<NDStatement>) : NDIntroductionStatement {
     override val value: FOLFormula
-        get() = ForAll(targetStatementWithoutQuantifier, varUUID)
-
-    init {
-        //todo this isn't really the right place:
-        assert(children.last().value == targetStatementWithoutQuantifier)
-    }
+        get() = ForAll(renameVar(children.last().value,forAllConst,desiredForAllvarUUID), desiredForAllvarUUID)
 }
 
-class ExistsIntroduction(val varUUID: UUID, val children: List<NDStatement>, val targetStatementWithoutQuantifier: FOLFormula) : NDIntroductionStatement {
+/**
+ * A exists introduction takes a instance of a formula and turns it into exists etc...
+ * @param existsVarCurrent the variable that will be replaced with an exists
+ * @param desiredExistsvarUUID desired uuid for exists bound var
+ */
+class ExistsIntroduction(val existsVarCurrent: UUID,val desiredExistsvarUUID: UUID, val targetStatement: NDStatement) : NDIntroductionStatement {
     override val value: FOLFormula
-        get() = Exists(targetStatementWithoutQuantifier, varUUID)
-
-    init {
-        //todo this isn't really the right place:
-        assert(children.last().value == targetStatementWithoutQuantifier)
-    }
+        get() = Exists(renameVar(targetStatement.value,existsVarCurrent,desiredExistsvarUUID), desiredExistsvarUUID)
 }
 
 class AndIntroduction(val left: NDStatement, val right: NDStatement) : NDIntroductionStatement {
@@ -43,6 +42,9 @@ class ImpliesIntroduction(val assumption: FOLFormula, val result: FOLFormula, va
         get() = Implies(assumption, result)
 }
 
+/**
+ * todo wrong
+ */
 class IFFIntroduction(val one: NDStatement, val two: NDStatement) : NDIntroductionStatement {
     override val value: FOLFormula
         get() = IFF(one.value, two.value)

@@ -3,20 +3,12 @@ package uk.ac.ic.doc.fpn17.nd
 import uk.ac.ic.doc.fpn17.logic.*
 import java.util.*
 
+
 class ForAllElimination(override val eliminationTarget: NDStatement, val fromUUID: UUID, val toUUID: UUID) : NDEliminationStatement {
     override val value: FOLFormula
         get() {
             val targetWithoutForAll = (eliminationTarget.value as ForAll).child;
-            val renameVars = { predicateAtom: PredicateAtom, rewriteRules: RewriteRules ->
-                PredicateAtom(predicateAtom.predicate, predicateAtom.expectedArgs.copyOf().map {
-                    val newVarName =
-                            if (it == fromUUID)
-                                toUUID
-                            else it
-                    newVarName
-                }.toTypedArray())
-            }
-            return recursiveRewrite(targetWithoutForAll, RewriteRules(rewritePredicateAtom = renameVars))
+            return renameVar(targetWithoutForAll,fromUUID,toUUID)
         }
 }
 
@@ -97,4 +89,8 @@ class DoubleNegationElimination(override val eliminationTarget: NDStatement): ND
         get() = ((eliminationTarget.value as Negation).child as Negation).child
 }
 
-class FalsityElimination(override val eliminationTarget: NDStatement, override val value: FOLFormula) : NDEliminationStatement
+class FalsityElimination(override val eliminationTarget: NDStatement, override val value: FOLFormula) : NDEliminationStatement{
+    init {
+        assert (eliminationTarget.value is False)
+    }
+}
