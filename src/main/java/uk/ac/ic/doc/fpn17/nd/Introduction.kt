@@ -7,9 +7,9 @@ import java.util.*
  * A for all introduction has a forall const leading to a conclusion. end result removes forall cconst and replaces with general
  * statement
  */
-class ForAllIntroduction(val forAllConst:UUID,val desiredForAllvarUUID: UUID, val children: List<NDStatement>) : NDIntroductionStatement {
+class ForAllIntroduction(val forAllConst:UUID,val desiredForAllvarUUID: UUID, val blockStatement: BlockStatement) : NDIntroductionStatement {
     override val value: FOLFormula
-        get() = ForAll(renameVar(children.last().value,forAllConst,desiredForAllvarUUID), desiredForAllvarUUID)
+        get() = ForAll(renameVar(blockStatement.value,forAllConst,desiredForAllvarUUID), desiredForAllvarUUID)
 }
 
 /**
@@ -37,7 +37,7 @@ class OrIntroductionRight(val left: FOLFormula, val right: NDStatement) : NDIntr
         get() = Or(left, right.value)
 }
 
-class ImpliesIntroduction(val assumption: FOLFormula, val result: FOLFormula, val children: List<NDStatement>) : NDIntroductionStatement {
+class ImpliesIntroduction(val assumption: FOLFormula, val result: FOLFormula, val children: BlockStatement) : NDIntroductionStatement {
     override val value: FOLFormula
         get() = Implies(assumption, result)
 }
@@ -74,4 +74,12 @@ class FalsityIntroduction(val contradictoryOne: NDStatement, val contradictoryTw
         }
     }
 
+}
+
+/**
+ * effectively copies a statement. needed for completeness reasons
+ */
+class IDIntroduction(val toCopy:NDStatement) : NDIntroductionStatement {
+    override val value: FOLFormula
+        get() = toCopy.value
 }
