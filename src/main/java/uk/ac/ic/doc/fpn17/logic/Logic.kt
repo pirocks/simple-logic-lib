@@ -46,10 +46,12 @@ class False : FOLFormula {
 
 }
 
+data class Predicate(val implmentation: (Array<Variable>) -> Boolean, val uuid: UUID)
+
 /**
  * todo predicates need uuids
  */
-data class PredicateAtom(val predicate: (Array<Variable>) -> Boolean, val expectedArgs: Array<UUID>) : FOLFormula {
+data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>) : FOLFormula {
     override fun evaluate(ev: EvalContext): Boolean {
         val args: Array<Variable?> = arrayOfNulls<Variable?>(expectedArgs.size)
         for ((i, expectedArg) in expectedArgs.withIndex()) {
@@ -58,7 +60,7 @@ data class PredicateAtom(val predicate: (Array<Variable>) -> Boolean, val expect
         val notNullArgs: Array<Variable> = Array(args.size, init = {
             args[it]!!
         })
-        return predicate.invoke(notNullArgs)
+        return predicate.implmentation.invoke(notNullArgs)
     }
 
     private fun predicateString():String = "predicateNumber" + predicate.hashCode().toString(16)
