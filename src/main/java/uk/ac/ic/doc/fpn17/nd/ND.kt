@@ -68,11 +68,11 @@ class BruteForceSolver(override val problem: Problem) : NDSolver {
         problem.givens.forEach { proof.children.add(GivenStatement(it)) }
         val givensAsKnowns = mutableListOf<Known>()
         proof.children.forEach { givensAsKnowns.add(Known(true,it)) }
-
+        TODO()
     }
 
     fun generateMoreKnowledge(knowns: Knowns,depth:Int):Knowns{
-
+        TODO()
     }
 
 }

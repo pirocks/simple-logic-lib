@@ -6,13 +6,9 @@ import java.util.*
 
 
 interface Equivalence{
-    fun matches(formula:FOLFormula):Int{
+    fun matches(formula:FOLFormula):Int
 
-    }
-
-    fun apply(formula: FOLFormula, index:Int):FOLFormula{
-
-    }
+    fun apply(formula: FOLFormula, index:Int):FOLFormula
 }
 
 //there will be one equivalence for left direction, and one for right
@@ -52,6 +48,7 @@ abstract class EquivalenceImpl : Equivalence{
             //recurse check
 
         }
+        TODO()
     }
 }
 
