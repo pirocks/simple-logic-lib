@@ -35,8 +35,8 @@ class QuantifierTest {
         val singleVarPredicateAtomExistsVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionExistsVar))
         val singleVarPredicateAtomForAllVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionExistsVar))
         val doubleVarPredicateAtom = PredicateAtom(doubleVarPredicate, arrayOf(complexExpressionExistsVar, complexExpressionForAllVar))
-        val complexExpressionPartOne = Exists(And(Or(singleVarPredicateAtomForAllVar, True()), Implies(singleVarPredicateAtomForAllVar, doubleVarPredicateAtom)), complexExpressionExistsVar)
-        val complexExpressionPartTwo = Or(singleVarPredicateAtomForAllVar, False())
+        val complexExpressionPartOne = Exists(IFF(Or(Negation(singleVarPredicateAtomForAllVar), And(singleVarPredicateAtomExistsVar,Negation(False()))), Implies(singleVarPredicateAtomForAllVar, doubleVarPredicateAtom)), complexExpressionExistsVar)
+        val complexExpressionPartTwo = IFF(singleVarPredicateAtomForAllVar, False())
         val complexExpression = ForAll(And(And(complexExpressionPartOne, complexExpressionPartOne), complexExpressionPartTwo), complexExpressionForAllVar)
         multiQuantifier1Var1Var2 = renameVar(renameVar(complexExpression, complexExpressionExistsVar, var1), complexExpressionForAllVar, var2) as ForAll
         multiQuantifier1Var3Var4 = renameVar(renameVar(complexExpression, complexExpressionExistsVar, var3), complexExpressionForAllVar, var4) as ForAll
