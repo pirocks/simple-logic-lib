@@ -1,98 +1,71 @@
 package uk.ac.ic.doc.fpn17.logic
 
-class RewriteRules(val rewritePredicateAtom: (PredicateAtom, RewriteRules) -> PredicateAtom = ::recursiveRewritePredicateAtom,
-                   val rewriteAnd: (And, RewriteRules) -> And = ::recursiveRewriteAnd,
-                   val rewriteOr: (Or, RewriteRules) -> Or = ::recursiveRewriteOr,
-                   val rewriteNegation: (Negation, RewriteRules) -> Negation = ::recursiveRewriteNegation,
-                   val rewriteImplies: (Implies, RewriteRules) -> Implies = ::recursiveRewriteImplies,
-                   val rewriteIFF: (IFF, RewriteRules) -> IFF = ::recursiveRewriteIFF,
-                   val rewriteForAll: (ForAll, RewriteRules) -> ForAll = ::recursiveRewriteForAll,
-                   val rewriteExists: (Exists, RewriteRules) -> Exists = ::recursiveRewriteExists)
+abstract class RewriteRules() {
 
-fun recursiveRewrite(original: FOLFormula, rewrite: RewriteRules): FOLFormula {
-    //todo make this way more object oriented
-    if (original is PredicateAtom) {
-        return rewrite.rewritePredicateAtom(original, rewrite)
+    open fun rewrite(original: FOLFormula): FOLFormula {
+        return when (original) {
+            is PredicateAtom -> rewritePredicateAtom(original)
+            is True -> True()
+            is False -> False()
+            is And -> rewriteAnd(original)
+            is Or -> rewriteOr(original)
+            is Negation -> rewriteNegation(original)
+            is Implies -> rewriteImplies(original)
+            is IFF -> rewriteIFF(original)
+            is ForAll -> rewriteForAll(original)
+            is Exists -> rewriteExists(original)
+        }
     }
-    if (original is And) {
-        return rewrite.rewriteAnd(original, rewrite)
+
+    open fun rewritePredicateAtom(toRewrite: PredicateAtom): PredicateAtom {
+        return toRewrite.copy()
     }
-    if (original is Or) {
-        return rewrite.rewriteOr(original, rewrite)
+
+    open fun rewriteAnd(toRewrite: And): And {
+        return And(rewrite(toRewrite.left), rewrite(toRewrite.right))
     }
-    if (original is Negation) {
-        return rewrite.rewriteNegation(original, rewrite)
+
+    open fun rewriteOr(toRewrite: Or): Or {
+        return Or(rewrite(toRewrite.left), rewrite(toRewrite.right))
     }
-    if (original is Implies) {
-        return rewrite.rewriteImplies(original, rewrite)
+
+    open fun rewriteNegation(toRewrite: Negation): Negation {
+        return Negation(rewrite(toRewrite.child))
     }
-    if (original is IFF) {
-        return rewrite.rewriteIFF(original, rewrite)
+
+    open fun rewriteImplies(toRewrite: Implies): Implies {
+        return Implies(rewrite(toRewrite.given), rewrite(toRewrite.result))
     }
-    if (original is ForAll) {
-        return rewrite.rewriteForAll(original, rewrite)
+
+    open fun rewriteIFF(toRewrite: IFF): IFF {
+        return IFF(rewrite(toRewrite.one), rewrite(toRewrite.two))
     }
-    if (original is Exists) {
-        return rewrite.rewriteExists(original, rewrite)
+
+    open fun rewriteForAll(toRewrite: ForAll): ForAll {
+        return ForAll(rewrite(toRewrite.child), toRewrite.varName)
     }
-    if (original is False) {
-        return False()
+
+    open fun rewriteExists(toRewrite: Exists): Exists {
+        return Exists(rewrite(toRewrite.child), toRewrite.varName)
     }
-    if (original is True) {
-        return True()
-    }
-    assert(false)
-    throw IllegalStateException()
+
 }
 
-fun recursiveRewritePredicateAtom(toRewrite: PredicateAtom, rewrite: RewriteRules): PredicateAtom {
-    return toRewrite.copy()
-}
-
-fun recursiveRewriteAnd(toRewrite: And, rewrite: RewriteRules): And {
-    return And(recursiveRewrite(toRewrite.left, rewrite), recursiveRewrite(toRewrite.right, rewrite))
-}
-
-fun recursiveRewriteOr(toRewrite: Or, rewrite: RewriteRules): Or {
-    return Or(recursiveRewrite(toRewrite.left, rewrite), recursiveRewrite(toRewrite.right, rewrite))
-}
-
-fun recursiveRewriteNegation(toRewrite: Negation, rewrite: RewriteRules): Negation {
-    return Negation(recursiveRewrite(toRewrite.child, rewrite))
-}
-
-fun recursiveRewriteImplies(toRewrite: Implies, rewrite: RewriteRules): Implies {
-    return Implies(recursiveRewrite(toRewrite.given, rewrite), recursiveRewrite(toRewrite.result, rewrite))
-}
-
-fun recursiveRewriteIFF(toRewrite: IFF, rewrite: RewriteRules): IFF {
-    return IFF(recursiveRewrite(toRewrite.one, rewrite), recursiveRewrite(toRewrite.two, rewrite))
-}
-
-fun recursiveRewriteForAll(toRewrite: ForAll, rewrite: RewriteRules): ForAll {
-    return ForAll(recursiveRewrite(toRewrite.child, rewrite), toRewrite.varName)
-}
-
-fun recursiveRewriteExists(toRewrite: Exists, rewrite: RewriteRules): Exists {
-    return Exists(recursiveRewrite(toRewrite.child, rewrite), toRewrite.varName)
-}
 
 public fun renameVar(formula: FOLFormula, from: VariableName, to: VariableName): FOLFormula {
-    val renameVarsPredicate = { predicateAtom: PredicateAtom, rewriteRules: RewriteRules ->
-        PredicateAtom(predicateAtom.predicate, predicateAtom.expectedArgs.copyOf().map {
-            val newVarName =
-                    if (it == from)
-                        to
-                    else it
-            newVarName
-        }.toTypedArray())
-    }
-    //maybe this could be more legible and more object oriented todo. also abstraction for quantifier would be nice
-    val renameVarsForAll = { previousForAll: ForAll, rewriteRules: RewriteRules ->
-        ForAll(recursiveRewrite(previousForAll.child, rewriteRules), if (previousForAll.varName == from) to else previousForAll.varName)
-    }
-    val renameVarsExist = { previousExist: Exists, rewriteRules: RewriteRules ->
-        Exists(recursiveRewrite(previousExist.child, rewriteRules), if (previousExist.varName == from) to else previousExist.varName)
-    }
-    return recursiveRewrite(formula, RewriteRules(rewritePredicateAtom = renameVarsPredicate, rewriteForAll = renameVarsForAll, rewriteExists = renameVarsExist))
+    return object : RewriteRules() {
+        override fun rewriteForAll(toRewrite: ForAll): ForAll {
+            return ForAll(rewrite(toRewrite.child), if (from == toRewrite.varName) to else toRewrite.varName)
+        }
+
+        override fun rewriteExists(toRewrite: Exists): Exists {
+            return Exists(rewrite(toRewrite.child), if (from == toRewrite.varName) to else toRewrite.varName)
+        }
+
+        override fun rewritePredicateAtom(toRewrite: PredicateAtom): PredicateAtom {
+            return PredicateAtom(toRewrite.predicate, toRewrite.expectedArgs.map {
+                if (it == from) to else it
+            }.toTypedArray())
+        }
+    }.rewrite(formula)
 }
