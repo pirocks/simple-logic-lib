@@ -36,7 +36,4 @@ class TrueTest {
         assertTrue(equalsAndSameAs(complex,complex))
     }
 
-    @After
-    fun tearDown() {
-    }
 }
