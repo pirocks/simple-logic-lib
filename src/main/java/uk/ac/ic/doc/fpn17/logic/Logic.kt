@@ -78,9 +78,6 @@ class False : FOLFormula {
 
 data class Predicate(val implmentation: (Array<Variable>) -> Boolean, val uuid: UUID)
 
-/**
- * todo predicates need uuids
- */
 data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>) : FOLFormula {
     override fun sameAs(other: FOLFormula): Boolean{
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
@@ -267,3 +264,5 @@ data class Exists(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUU
         return res
     }
 }
+
+//todo refactor implmentations of variables so they have string names and are abstracted instead of having a uuid only.
