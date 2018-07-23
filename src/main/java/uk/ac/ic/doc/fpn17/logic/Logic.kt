@@ -8,13 +8,38 @@ data class Variable(val uuid: UUID, val value: SignatureElement)
 class Signature(val elements: Set<SignatureElement>/*, val predicates: Set<(SignatureElement) -> Boolean>*/)
 class EvalContext(val signature: Signature, val variables: MutableMap<UUID, Variable>)
 
+class EqualityContext(
+        //from: other var
+        //to: our vars
+        val uuidVariableMappings: Map<UUID,UUID> = mutableMapOf())
 interface FOLFormula {
+    val subFormulas: Array<FOLFormula>
+    fun sameAs(other:FOLFormula):Boolean{
+        return sameAsImpl(other, EqualityContext())
+    }
+    open fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean {
+        //by default if subformulas are equivalent then these are equivalent.
+        if(javaClass != other.javaClass || subFormulas.size != other.subFormulas.size){
+            return false
+        }
+        for (i in 0..subFormulas.size){
+            if(!subFormulas[i].sameAs(other.subFormulas[i])){
+                return false
+            }
+        }
+        return true
+    }
     fun evaluate(ev: EvalContext): Boolean
     fun toMathML2(): String
     fun toHtml(): String = ("<math> <mrow>" + toMathML2() + "</mrow> </math>").replace("\\s(?!separators)".toRegex(), "").trim().trimIndent()
 }
 
 class True : FOLFormula {
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean = other is True;
+
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf()
+
     override fun evaluate(ev: EvalContext): Boolean = true
 
     override fun equals(other: Any?): Boolean {
@@ -31,6 +56,11 @@ class True : FOLFormula {
 }
 
 class False : FOLFormula {
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean = other is False;
+
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf()
+
     override fun evaluate(ev: EvalContext): Boolean = true
 
     override fun equals(other: Any?): Boolean {
@@ -52,6 +82,34 @@ data class Predicate(val implmentation: (Array<Variable>) -> Boolean, val uuid: 
  * todo predicates need uuids
  */
 data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>) : FOLFormula {
+    override fun sameAs(other: FOLFormula): Boolean{
+        //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
+        assert(expectedArgs.isEmpty())
+        if(other !is PredicateAtom){
+            return false;
+        } else{
+            assert(other.expectedArgs.isEmpty())
+            return predicate.uuid == other.predicate.uuid;
+        }
+    }
+
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
+        if(other !is PredicateAtom){
+            return false;
+        }
+        if(other.expectedArgs.size != expectedArgs.size){
+            return false
+        }
+        if(other.predicate.uuid != predicate.uuid){
+            return false
+        }
+        fun translateExpectedArgs(toTranslate: Array<UUID> ): Array<UUID?> = toTranslate.map { equalityContext.uuidVariableMappings[it] }.toTypedArray()
+        return expectedArgs.contentDeepEquals(translateExpectedArgs(other.expectedArgs))
+    }
+
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf()
+
     override fun evaluate(ev: EvalContext): Boolean {
         val args: Array<Variable?> = arrayOfNulls<Variable?>(expectedArgs.size)
         for ((i, expectedArg) in expectedArgs.withIndex()) {
@@ -70,6 +128,9 @@ data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>
 }
 
 data class And(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf(left,right)
+
     override fun toMathML2(): String = """
     <mrow>
     ${left.toMathML2()}
@@ -81,6 +142,9 @@ data class And(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
 }
 
 data class Or(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf(left,right)
+
     override fun toMathML2(): String = """
     <mrow>
     <mfenced separators="">
@@ -94,6 +158,9 @@ data class Or(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
 }
 
 data class Negation(val child: FOLFormula) : FOLFormula {
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf(child)
+
     override fun toMathML2(): String = """
     <mrow>
     <mo>&not;</mo>
@@ -104,6 +171,9 @@ data class Negation(val child: FOLFormula) : FOLFormula {
 }
 
 data class Implies(val given: FOLFormula, val result: FOLFormula) : FOLFormula {
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf(given,result)
+
     override fun toMathML2(): String = """
     <mrow>
     <mfenced separators="">
@@ -117,6 +187,9 @@ data class Implies(val given: FOLFormula, val result: FOLFormula) : FOLFormula {
 }
 
 data class IFF(val one: FOLFormula, val two: FOLFormula) : FOLFormula {
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf(one,two)
+
     override fun toMathML2(): String = """
     <mrow>
     <mfenced separators="">
@@ -129,6 +202,18 @@ data class IFF(val one: FOLFormula, val two: FOLFormula) : FOLFormula {
 }
 
 data class ForAll(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUUID()) : FOLFormula {
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf(child)
+
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
+        if(other !is ForAll){
+            return false
+        }
+
+        val newEqualityContext = EqualityContext(equalityContext.uuidVariableMappings + mutableMapOf<UUID,UUID>(Pair(other.varUUID,varUUID)))
+        return child.sameAsImpl(other.child,newEqualityContext);
+    }
+
     override fun toMathML2(): String = """
     <mrow>
     <mo>&forall;</mo>
@@ -150,6 +235,9 @@ data class ForAll(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUU
 }
 
 data class Exists(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUUID()) : FOLFormula {
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf(child)
+
     override fun toMathML2(): String = """
     <mrow>
     <mo>&exist;</mo>
@@ -160,6 +248,16 @@ data class Exists(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUU
         </mfenced>
     </mrow>
     </mrow>"""
+
+    //todo possible duplication with exsists
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
+        if(other !is Exists){
+            return false
+        }
+
+        val newEqualityContext = EqualityContext(equalityContext.uuidVariableMappings + mutableMapOf<UUID,UUID>(Pair(other.varUUID,varUUID)))
+        return child.sameAsImpl(other.child,newEqualityContext);
+    }
 
     override fun evaluate(ev: EvalContext): Boolean = ev.signature.elements.any {
         val `var` = Variable(varUUID, it)
