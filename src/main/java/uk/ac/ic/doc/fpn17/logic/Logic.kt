@@ -71,9 +71,9 @@ class EqualityContext(
         //to: our vars
         val uuidVariableMappings: Map<VariableName,VariableName> = mapOf())
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
-interface FOLFormula {
-    val subFormulas: Array<FOLFormula>
-    fun sameAs(other:FOLFormula):Boolean{
+sealed class FOLFormula {
+    abstract val subFormulas: Array<FOLFormula>
+    open fun sameAs(other:FOLFormula):Boolean{
         return sameAsImpl(other, EqualityContext())
     }
     open fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean {
@@ -88,12 +88,12 @@ interface FOLFormula {
         }
         return true
     }
-    fun evaluate(ev: EvalContext): Boolean
-    fun toMathML2(): String
+    abstract fun evaluate(ev: EvalContext): Boolean
+    abstract fun toMathML2(): String
     fun toHtml(): String = ("<math> <mrow>" + toMathML2() + "</mrow> </math>").replace("\\s(?!separators)".toRegex(), "").trim().trimIndent()
 
 }
-class True : FOLFormula {
+class True : FOLFormula() {
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean = other is True;
 
     override val subFormulas: Array<FOLFormula>
@@ -113,7 +113,7 @@ class True : FOLFormula {
     override fun toMathML2(): String = "<mi>T</mi>"
 
 }
-class False : FOLFormula {
+class False : FOLFormula() {
 
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean = other is False;
 
@@ -135,7 +135,7 @@ class False : FOLFormula {
 
 }
 
-data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula {
+data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula() {
     override fun sameAs(other: FOLFormula): Boolean{
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
         assert(expectedArgs.isEmpty())
@@ -197,7 +197,7 @@ data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
 
 }
 
-data class And(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
+data class And(val left: FOLFormula, val right: FOLFormula) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(left,right)
 
@@ -211,7 +211,7 @@ data class And(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
     override fun evaluate(ev: EvalContext): Boolean = left.evaluate(ev) && right.evaluate(ev)
 }
 
-data class Or(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
+data class Or(val left: FOLFormula, val right: FOLFormula) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(left,right)
 
@@ -227,7 +227,7 @@ data class Or(val left: FOLFormula, val right: FOLFormula) : FOLFormula {
     override fun evaluate(ev: EvalContext): Boolean = left.evaluate(ev) || right.evaluate(ev)
 }
 
-data class Negation(val child: FOLFormula) : FOLFormula {
+data class Negation(val child: FOLFormula) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
 
@@ -240,7 +240,7 @@ data class Negation(val child: FOLFormula) : FOLFormula {
     override fun evaluate(ev: EvalContext): Boolean = !child.evaluate(ev)
 }
 
-data class Implies(val given: FOLFormula, val result: FOLFormula) : FOLFormula {
+data class Implies(val given: FOLFormula, val result: FOLFormula) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(given,result)
 
@@ -256,7 +256,7 @@ data class Implies(val given: FOLFormula, val result: FOLFormula) : FOLFormula {
     override fun evaluate(ev: EvalContext): Boolean = !given.evaluate(ev) || result.evaluate(ev)
 }
 
-data class IFF(val one: FOLFormula, val two: FOLFormula) : FOLFormula {
+data class IFF(val one: FOLFormula, val two: FOLFormula) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(one,two)
 
@@ -271,7 +271,7 @@ data class IFF(val one: FOLFormula, val two: FOLFormula) : FOLFormula {
     override fun evaluate(ev: EvalContext): Boolean = one.evaluate(ev) == two.evaluate(ev)
 }
 
-data class ForAll(val child: FOLFormula, val varName: VariableName = VariableName(UUIDUtil.generateUUID(),UUIDUtil.generateUUID().toString())) : FOLFormula {
+data class ForAll(val child: FOLFormula, val varName: VariableName = VariableName(UUIDUtil.generateUUID(),UUIDUtil.generateUUID().toString())) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
 
@@ -304,7 +304,7 @@ data class ForAll(val child: FOLFormula, val varName: VariableName = VariableNam
     }
 }
 
-data class Exists(val child: FOLFormula, val varName: VariableName = VariableName(UUIDUtil.generateUUID(),UUIDUtil.generateUUID().toString())) : FOLFormula {
+data class Exists(val child: FOLFormula, val varName: VariableName = VariableName(UUIDUtil.generateUUID(),UUIDUtil.generateUUID().toString())) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
 

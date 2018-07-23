@@ -77,7 +77,7 @@ fun recursiveRewriteExists(toRewrite: Exists, rewrite: RewriteRules): Exists {
     return Exists(recursiveRewrite(toRewrite.child, rewrite), toRewrite.varName)
 }
 
-fun renameVar(formula: FOLFormula, from: VariableName, to: VariableName): FOLFormula {
+public fun renameVar(formula: FOLFormula, from: VariableName, to: VariableName): FOLFormula {
     val renameVarsPredicate = { predicateAtom: PredicateAtom, rewriteRules: RewriteRules ->
         PredicateAtom(predicateAtom.predicate, predicateAtom.expectedArgs.copyOf().map {
             val newVarName =
