@@ -33,7 +33,7 @@ class QuantifierTest {
         val complexExpressionExistsVar = UUIDUtil.generateUUID();
         val complexExpressionForAllVar = UUIDUtil.generateUUID();
         val singleVarPredicateAtomExistsVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionExistsVar))
-        val singleVarPredicateAtomForAllVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionExistsVar))
+        val singleVarPredicateAtomForAllVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionForAllVar))
         val doubleVarPredicateAtom = PredicateAtom(doubleVarPredicate, arrayOf(complexExpressionExistsVar, complexExpressionForAllVar))
         val complexExpressionPartOne = Exists(IFF(Or(Negation(singleVarPredicateAtomForAllVar), And(singleVarPredicateAtomExistsVar,Negation(False()))), Implies(singleVarPredicateAtomForAllVar, doubleVarPredicateAtom)), complexExpressionExistsVar)
         val complexExpressionPartTwo = IFF(singleVarPredicateAtomForAllVar, False())
@@ -65,7 +65,6 @@ class QuantifierTest {
         assertTrue(multiQuantifier1Var3Var4.sameAs(multiQuantifier1Var3Var4))
         assertTrue(multiQuantifier1Var3Var4.sameAs(multiQuantifier1Var1Var2))
         assertTrue(multiQuantifier1Var1Var2.sameAs(multiQuantifier1Var3Var4))
-        assertFalse(multiQuantifier1Var3Var4.equals(multiQuantifier1Var3Var4))
         assertFalse(multiQuantifier1Var3Var4.equals(multiQuantifier1Var1Var2))
         assertFalse(multiQuantifier1Var1Var2.equals(multiQuantifier1Var3Var4))
     }

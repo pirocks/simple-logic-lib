@@ -22,8 +22,8 @@ interface FOLFormula {
         if(javaClass != other.javaClass || subFormulas.size != other.subFormulas.size){
             return false
         }
-        for (i in 0..subFormulas.size){
-            if(!subFormulas[i].sameAs(other.subFormulas[i])){
+        for (i in 0 until subFormulas.size){
+            if(!subFormulas[i].sameAsImpl(other.subFormulas[i],equalityContext)){
                 return false
             }
         }
@@ -103,7 +103,7 @@ data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>
         if(other.predicate.uuid != predicate.uuid){
             return false
         }
-        fun translateExpectedArgs(toTranslate: Array<UUID> ): Array<UUID?> = toTranslate.map { equalityContext.uuidVariableMappings[it] }.toTypedArray()
+        fun translateExpectedArgs(toTranslate: Array<UUID> ): Array<UUID?> = toTranslate.map { equalityContext.uuidVariableMappings[it]!! }.toTypedArray()// okay to assert not null, because there are no free vars. So there shouldn't be unknown vars
         return expectedArgs.contentDeepEquals(translateExpectedArgs(other.expectedArgs))
     }
 

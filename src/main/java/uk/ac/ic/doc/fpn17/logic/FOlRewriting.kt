@@ -14,28 +14,28 @@ class RewriteRules(val rewritePredicateAtom: (PredicateAtom, RewriteRules) -> Pr
 fun recursiveRewrite(original: FOLFormula, rewrite: RewriteRules): FOLFormula {
     //todo make this way more object oriented
     if (original is PredicateAtom) {
-        return rewrite.rewritePredicateAtom(original,rewrite)
+        return rewrite.rewritePredicateAtom(original, rewrite)
     }
     if (original is And) {
-        return rewrite.rewriteAnd(original,rewrite)
+        return rewrite.rewriteAnd(original, rewrite)
     }
     if (original is Or) {
-        return rewrite.rewriteOr(original,rewrite)
+        return rewrite.rewriteOr(original, rewrite)
     }
     if (original is Negation) {
-        return rewrite.rewriteNegation(original,rewrite)
+        return rewrite.rewriteNegation(original, rewrite)
     }
     if (original is Implies) {
-        return rewrite.rewriteImplies(original,rewrite)
+        return rewrite.rewriteImplies(original, rewrite)
     }
     if (original is IFF) {
-        return rewrite.rewriteIFF(original,rewrite)
+        return rewrite.rewriteIFF(original, rewrite)
     }
     if (original is ForAll) {
-        return rewrite.rewriteForAll(original,rewrite)
+        return rewrite.rewriteForAll(original, rewrite)
     }
     if (original is Exists) {
-        return rewrite.rewriteExists(original,rewrite)
+        return rewrite.rewriteExists(original, rewrite)
     }
     if (original is False) {
         return False()
@@ -79,8 +79,8 @@ fun recursiveRewriteExists(toRewrite: Exists, rewrite: RewriteRules): Exists {
     return Exists(recursiveRewrite(toRewrite.child, rewrite), toRewrite.varUUID)
 }
 
-fun renameVar(formula: FOLFormula, fromUUID:UUID , toUUID: UUID): FOLFormula {
-    val renameVars = { predicateAtom: PredicateAtom, rewriteRules: RewriteRules ->
+fun renameVar(formula: FOLFormula, fromUUID: UUID, toUUID: UUID): FOLFormula {
+    val renameVarsPredicate = { predicateAtom: PredicateAtom, rewriteRules: RewriteRules ->
         PredicateAtom(predicateAtom.predicate, predicateAtom.expectedArgs.copyOf().map {
             val newVarName =
                     if (it == fromUUID)
@@ -89,5 +89,12 @@ fun renameVar(formula: FOLFormula, fromUUID:UUID , toUUID: UUID): FOLFormula {
             newVarName
         }.toTypedArray())
     }
-    return recursiveRewrite(formula, RewriteRules(rewritePredicateAtom = renameVars))
+    //maybe this could be more legible and more object oriented todo. also abstraction for quantifier would be nice
+    val renameVarsForAll = { previousForAll: ForAll, rewriteRules: RewriteRules ->
+        ForAll(recursiveRewrite(previousForAll.child, rewriteRules), if (previousForAll.varUUID == fromUUID) toUUID else previousForAll.varUUID)
+    }
+    val renameVarsExist = { previousExist: Exists, rewriteRules: RewriteRules ->
+        Exists(recursiveRewrite(previousExist.child, rewriteRules), if (previousExist.varUUID == fromUUID) toUUID else previousExist.varUUID)
+    }
+    return recursiveRewrite(formula, RewriteRules(rewritePredicateAtom = renameVarsPredicate, rewriteForAll = renameVarsForAll, rewriteExists = renameVarsExist))
 }
