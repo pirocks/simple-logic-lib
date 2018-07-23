@@ -28,7 +28,6 @@ abstract class EquivalenceImpl : Equivalence{
         if(subPattern is PredicateAtom){
             val predicateUUID = subPattern.predicate.uuid;
             if(predicateUUID in matchContext.currentMatches){
-                //todo equality needs fixing, so that forall a P(a) is the same as forall b P(b)
                 val expectedValue = matchContext.currentMatches[predicateUUID]!!
                 if(expectedValue != subFormula){
                     //no match
