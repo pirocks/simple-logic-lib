@@ -1,25 +1,24 @@
 package uk.ac.ic.doc.fpn17.nd
 
 import uk.ac.ic.doc.fpn17.logic.*
-import java.util.*
 
 /**
  * A for all introduction has a forall const leading to a conclusion. end result removes forall cconst and replaces with general
  * statement
  */
-class ForAllIntroduction(val forAllConst:UUID,val desiredForAllvarUUID: UUID, val blockStatement: BlockStatement) : NDIntroductionStatement {
+class ForAllIntroduction(val forAllConst:VariableName, val desiredForAllvar: VariableName, val blockStatement: BlockStatement) : NDIntroductionStatement {
     override val value: FOLFormula
-        get() = ForAll(renameVar(blockStatement.value,forAllConst,desiredForAllvarUUID), desiredForAllvarUUID)
+        get() = ForAll(renameVar(blockStatement.value,forAllConst,desiredForAllvar), desiredForAllvar)
 }
 
 /**
  * A exists introduction takes a instance of a formula and turns it into exists etc...
  * @param existsVarCurrent the variable that will be replaced with an exists
- * @param desiredExistsvarUUID desired uuid for exists bound var
+ * @param desiredExistsvar desired uuid for exists bound var
  */
-class ExistsIntroduction(val existsVarCurrent: UUID,val desiredExistsvarUUID: UUID, val targetStatement: NDStatement) : NDIntroductionStatement {
+class ExistsIntroduction(val existsVarCurrent: VariableName, val desiredExistsvar: VariableName, val targetStatement: NDStatement) : NDIntroductionStatement {
     override val value: FOLFormula
-        get() = Exists(renameVar(targetStatement.value,existsVarCurrent,desiredExistsvarUUID), desiredExistsvarUUID)
+        get() = Exists(renameVar(targetStatement.value,existsVarCurrent,desiredExistsvar), desiredExistsvar)
 }
 
 class AndIntroduction(val left: NDStatement, val right: NDStatement) : NDIntroductionStatement {

@@ -3,15 +3,74 @@ package uk.ac.ic.doc.fpn17.logic
 import uk.ac.ic.doc.fpn17.util.UUIDUtil
 import java.util.*
 
+
+val nameIndex: MutableMap<UUID,String> = mutableMapOf()
+
 data class SignatureElement(val uuid: UUID)
-data class Variable(val uuid: UUID, val value: SignatureElement)
-class Signature(val elements: Set<SignatureElement>/*, val predicates: Set<(SignatureElement) -> Boolean>*/)
-class EvalContext(val signature: Signature, val variables: MutableMap<UUID, Variable>)
+data class VariableValue(val variableName: VariableName, val value: SignatureElement)
+class VariableName{
+    companion object {
+
+        @JvmStatic private var varCount = 0;
+        public fun getAndIncrementPredicateCount():Int{
+            varCount++;
+            return varCount- 1;
+        }
+    }
+
+
+    val uuid: UUID
+    constructor(uuid: UUID = UUIDUtil.generateUUID(), name:String = "V" + getAndIncrementPredicateCount().toString()){
+        this.uuid = uuid;
+        nameIndex[uuid] = name;
+    }
+
+    val name:String
+    get() = nameIndex[uuid]!!
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VariableName) return false
+
+        if (uuid != other.uuid) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
+
+
+}
+data class Signature(val elements: Set<SignatureElement>, val predicates: Set<Predicate>)
+
+class Predicate {
+    companion object {
+        @JvmStatic private var predicateCount = 0;
+        public fun getAndIncrementPredicateCount():Int{
+            predicateCount++;
+            return predicateCount - 1;
+        }
+    }
+    val implmentation: (Array<VariableValue>) -> Boolean
+    val uuid: UUID
+    val name:String
+    get() = nameIndex[uuid]!!
+
+    constructor(implmentation: (Array<VariableValue>) -> Boolean, uuid: UUID = UUIDUtil.generateUUID(),name: String = "P" + getAndIncrementPredicateCount().toString()) {
+        this.implmentation = implmentation
+        this.uuid = uuid
+        nameIndex[uuid] = name
+    }
+
+}
 
 class EqualityContext(
         //from: other var
         //to: our vars
-        val uuidVariableMappings: Map<UUID,UUID> = mutableMapOf())
+        val uuidVariableMappings: Map<VariableName,VariableName> = mapOf())
+class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
 interface FOLFormula {
     val subFormulas: Array<FOLFormula>
     fun sameAs(other:FOLFormula):Boolean{
@@ -32,8 +91,8 @@ interface FOLFormula {
     fun evaluate(ev: EvalContext): Boolean
     fun toMathML2(): String
     fun toHtml(): String = ("<math> <mrow>" + toMathML2() + "</mrow> </math>").replace("\\s(?!separators)".toRegex(), "").trim().trimIndent()
-}
 
+}
 class True : FOLFormula {
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean = other is True;
 
@@ -41,12 +100,12 @@ class True : FOLFormula {
         get() = arrayOf()
 
     override fun evaluate(ev: EvalContext): Boolean = true
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         return true
     }
+
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
@@ -54,20 +113,20 @@ class True : FOLFormula {
     override fun toMathML2(): String = "<mi>T</mi>"
 
 }
-
 class False : FOLFormula {
+
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext):Boolean = other is False;
 
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf()
 
     override fun evaluate(ev: EvalContext): Boolean = true
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         return true
     }
+
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
@@ -76,9 +135,7 @@ class False : FOLFormula {
 
 }
 
-data class Predicate(val implmentation: (Array<Variable>) -> Boolean, val uuid: UUID)
-
-data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>) : FOLFormula {
+data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula {
     override fun sameAs(other: FOLFormula): Boolean{
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
         assert(expectedArgs.isEmpty())
@@ -100,7 +157,7 @@ data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>
         if(other.predicate.uuid != predicate.uuid){
             return false
         }
-        fun translateExpectedArgs(toTranslate: Array<UUID> ): Array<UUID?> = toTranslate.map { equalityContext.uuidVariableMappings[it]!! }.toTypedArray()// okay to assert not null, because there are no free vars. So there shouldn't be unknown vars
+        fun translateExpectedArgs(toTranslate: Array<VariableName> ): Array<VariableName?> = toTranslate.map { equalityContext.uuidVariableMappings[it]!! }.toTypedArray()// okay to assert not null, because there are no free vars. So there shouldn't be unknown vars
         return expectedArgs.contentDeepEquals(translateExpectedArgs(other.expectedArgs))
     }
 
@@ -108,11 +165,11 @@ data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>
         get() = arrayOf()
 
     override fun evaluate(ev: EvalContext): Boolean {
-        val args: Array<Variable?> = arrayOfNulls<Variable?>(expectedArgs.size)
+        val args: Array<VariableValue?> = arrayOfNulls<VariableValue?>(expectedArgs.size)
         for ((i, expectedArg) in expectedArgs.withIndex()) {
             args[i] = ev.variables[expectedArg]
         }
-        val notNullArgs: Array<Variable> = Array(args.size, init = {
+        val notNullArgs: Array<VariableValue> = Array(args.size, init = {
             args[it]!!
         })
         return predicate.implmentation.invoke(notNullArgs)
@@ -120,7 +177,23 @@ data class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<UUID>
 
     private fun predicateString():String = "predicateNumber" + predicate.hashCode().toString(16)
 
-    override fun toMathML2(): String = """<mrow><mi>${predicateString()}</mi><mfenced>${expectedArgs.map { "<mrow>" + UUIDUtil.toMathML2(it) + "</mrow>"}.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
+    override fun toMathML2(): String = """<mrow><mi>${predicateString()}</mi><mfenced>${expectedArgs.map { "<mrow>" + it.name + "</mrow>"}.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PredicateAtom) return false
+
+        if (predicate != other.predicate) return false
+        if (!Arrays.equals(expectedArgs, other.expectedArgs)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = predicate.hashCode()
+        result = 31 * result + Arrays.hashCode(expectedArgs)
+        return result
+    }
 
 }
 
@@ -198,7 +271,7 @@ data class IFF(val one: FOLFormula, val two: FOLFormula) : FOLFormula {
     override fun evaluate(ev: EvalContext): Boolean = one.evaluate(ev) == two.evaluate(ev)
 }
 
-data class ForAll(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUUID()) : FOLFormula {
+data class ForAll(val child: FOLFormula, val varName: VariableName = VariableName(UUIDUtil.generateUUID(),UUIDUtil.generateUUID().toString())) : FOLFormula {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
 
@@ -207,14 +280,14 @@ data class ForAll(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUU
             return false
         }
 
-        val newEqualityContext = EqualityContext(equalityContext.uuidVariableMappings + mutableMapOf<UUID,UUID>(Pair(other.varUUID,varUUID)))
+        val newEqualityContext = EqualityContext(equalityContext.uuidVariableMappings + mutableMapOf(Pair(other.varName,varName)))
         return child.sameAsImpl(other.child,newEqualityContext);
     }
 
     override fun toMathML2(): String = """
     <mrow>
     <mo>&forall;</mo>
-    <mrow>${UUIDUtil.toMathML2(varUUID)}</mrow>
+    <mrow>${varName.name}</mrow>
     <mrow>
         <mfenced separators="">
         <mrow>${child.toMathML2()}</mrow>
@@ -223,22 +296,22 @@ data class ForAll(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUU
     </mrow>"""
 
     override fun evaluate(ev: EvalContext): Boolean = ev.signature.elements.all {
-        val `var` = Variable(varUUID, it)
-        ev.variables.put(varUUID, `var`)
+        val `var` = VariableValue(varName, it)
+        ev.variables.put(varName, `var`)
         val res = child.evaluate(ev)
-        ev.variables.remove(varUUID)
+        ev.variables.remove(varName)
         return res
     }
 }
 
-data class Exists(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUUID()) : FOLFormula {
+data class Exists(val child: FOLFormula, val varName: VariableName = VariableName(UUIDUtil.generateUUID(),UUIDUtil.generateUUID().toString())) : FOLFormula {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
 
     override fun toMathML2(): String = """
     <mrow>
     <mo>&exist;</mo>
-    <mrow>${UUIDUtil.toMathML2(varUUID)}</mrow>
+    <mrow>${varName.name}</mrow>
     <mrow>
         <mfenced separators="">
         <mrow>${child.toMathML2()}</mrow>
@@ -252,15 +325,15 @@ data class Exists(val child: FOLFormula, val varUUID: UUID = UUIDUtil.generateUU
             return false
         }
 
-        val newEqualityContext = EqualityContext(equalityContext.uuidVariableMappings + mutableMapOf<UUID,UUID>(Pair(other.varUUID,varUUID)))
+        val newEqualityContext = EqualityContext(equalityContext.uuidVariableMappings + mutableMapOf(Pair(other.varName,varName)))
         return child.sameAsImpl(other.child,newEqualityContext);
     }
 
     override fun evaluate(ev: EvalContext): Boolean = ev.signature.elements.any {
-        val `var` = Variable(varUUID, it)
-        ev.variables.put(varUUID, `var`)
+        val `var` = VariableValue(varName, it)
+        ev.variables.put(varName, `var`)
         val res = child.evaluate(ev)
-        ev.variables.remove(varUUID)
+        ev.variables.remove(varName)
         return res
     }
 }

@@ -4,11 +4,11 @@ import uk.ac.ic.doc.fpn17.logic.*
 import java.util.*
 
 
-class ForAllElimination(override val eliminationTarget: NDStatement, val fromUUID: UUID, val toUUID: UUID) : NDEliminationStatement {
+class ForAllElimination(override val eliminationTarget: NDStatement, val from: VariableName, val to: VariableName) : NDEliminationStatement {
     override val value: FOLFormula
         get() {
             val targetWithoutForAll = (eliminationTarget.value as ForAll).child;
-            return renameVar(targetWithoutForAll,fromUUID,toUUID)
+            return renameVar(targetWithoutForAll,from, to)
         }
 }
 

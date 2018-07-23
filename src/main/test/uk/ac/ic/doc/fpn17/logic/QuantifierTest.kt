@@ -10,13 +10,13 @@ import java.util.*
 
 class QuantifierTest {
 
-    val singleVarPredicate : Predicate = Predicate( { assert(it.size == 1);false;}, UUIDUtil.generateUUID())
-    val doubleVarPredicate : Predicate = Predicate({ assert(it.size == 2);true;}, UUIDUtil.generateUUID())
+    val singleVarPredicate : Predicate = Predicate( { assert(it.size == 1);false;})
+    val doubleVarPredicate : Predicate = Predicate({ assert(it.size == 2);true;})
     lateinit var simpleExpr1: ForAll
-    var var1: UUID = UUIDUtil.generateUUID()
-    var var2: UUID = UUIDUtil.generateUUID()
-    var var3: UUID = UUIDUtil.generateUUID()
-    var var4: UUID = UUIDUtil.generateUUID()
+    var var1: VariableName = VariableName()
+    var var2: VariableName = VariableName()
+    var var3: VariableName = VariableName()
+    var var4: VariableName = VariableName()
     lateinit var simpleExpr1Var1: ForAll
     lateinit var simpleExpr1Var2: ForAll
     lateinit var multiQuantifier1Var1Var2: ForAll
@@ -30,8 +30,8 @@ class QuantifierTest {
     }
 
     private fun setUpMultiQuantifier() {
-        val complexExpressionExistsVar = UUIDUtil.generateUUID();
-        val complexExpressionForAllVar = UUIDUtil.generateUUID();
+        val complexExpressionExistsVar = VariableName();
+        val complexExpressionForAllVar = VariableName();
         val singleVarPredicateAtomExistsVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionExistsVar))
         val singleVarPredicateAtomForAllVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionForAllVar))
         val doubleVarPredicateAtom = PredicateAtom(doubleVarPredicate, arrayOf(complexExpressionExistsVar, complexExpressionForAllVar))
@@ -43,7 +43,7 @@ class QuantifierTest {
     }
 
     private fun setUpSimpleExpr() {
-        val simpleExprVar = UUIDUtil.generateUUID()
+        val simpleExprVar = VariableName()
         val simpleExprPredicateAtom: PredicateAtom = PredicateAtom(singleVarPredicate, arrayOf(simpleExprVar))
         simpleExpr1 = ForAll(Implies(And(simpleExprPredicateAtom, True()), simpleExprPredicateAtom), simpleExprVar)
         simpleExpr1Var1 = renameVar(simpleExpr1, simpleExprVar, var1) as ForAll

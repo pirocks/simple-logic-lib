@@ -1,5 +1,6 @@
 package uk.ac.ic.doc.fpn17.equivalences
 
+import uk.ac.ic.doc.fpn17.logic.EqualityContext
 import uk.ac.ic.doc.fpn17.logic.FOLFormula
 import uk.ac.ic.doc.fpn17.logic.PredicateAtom
 import java.util.*
