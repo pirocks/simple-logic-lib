@@ -5,47 +5,65 @@ abstract class RewritingVisitor() {
     open fun rewrite(original: FOLFormula): FOLFormula {
         return when (original) {
             is PredicateAtom -> rewritePredicateAtom(original)
-            is True -> True()
-            is False -> False()
-            is And -> rewriteAnd(original)
-            is Or -> rewriteOr(original)
+            is True -> rewriteTrue(original)
+            is False -> rewriteFalse(original)
             is Negation -> rewriteNegation(original)
-            is Implies -> rewriteImplies(original)
-            is IFF -> rewriteIFF(original)
-            is ForAll -> rewriteForAll(original)
-            is Exists -> rewriteExists(original)
+            is BinaryRelation -> rewriteBinaryRelation(original)
+            is Quantifier -> rewriteQuantifier(original)
         }
     }
 
-    open fun rewritePredicateAtom(toRewrite: PredicateAtom): PredicateAtom {
+    /**
+     * parameters only included for consistency. Shouldn't actually be necessary
+     */
+    open fun rewriteTrue(toRewrite:True):FOLFormula = True()
+    open fun rewriteFalse(toRewrite:False):FOLFormula = False()
+
+    open fun rewriteBinaryRelation(toRewrite: BinaryRelation):FOLFormula{
+        return when(toRewrite){
+            is And -> rewriteAnd(toRewrite)
+            is Or -> rewriteOr(toRewrite)
+            is Implies -> rewriteImplies(toRewrite)
+            is IFF -> rewriteIFF(toRewrite)
+        }
+    }
+
+    open fun rewriteQuantifier(toRewrite:Quantifier):FOLFormula{
+        return when(toRewrite){
+            is ForAll -> rewriteForAll(toRewrite)
+            is Exists -> rewriteExists(toRewrite)
+        }
+    }
+
+    open fun rewritePredicateAtom(toRewrite: PredicateAtom): FOLFormula {
         return toRewrite.copy()
     }
 
-    open fun rewriteAnd(toRewrite: And): And {
+    open fun rewriteAnd(toRewrite: And): FOLFormula {
         return And(rewrite(toRewrite.left), rewrite(toRewrite.right))
     }
 
-    open fun rewriteOr(toRewrite: Or): Or {
+    open fun rewriteOr(toRewrite: Or): FOLFormula {
         return Or(rewrite(toRewrite.left), rewrite(toRewrite.right))
     }
 
-    open fun rewriteNegation(toRewrite: Negation): Negation {
+    open fun rewriteNegation(toRewrite: Negation): FOLFormula {
         return Negation(rewrite(toRewrite.child))
     }
 
-    open fun rewriteImplies(toRewrite: Implies): Implies {
+    open fun rewriteImplies(toRewrite: Implies): FOLFormula {
         return Implies(rewrite(toRewrite.given), rewrite(toRewrite.result))
     }
 
-    open fun rewriteIFF(toRewrite: IFF): IFF {
+    open fun rewriteIFF(toRewrite: IFF): FOLFormula {
         return IFF(rewrite(toRewrite.one), rewrite(toRewrite.two))
     }
 
-    open fun rewriteForAll(toRewrite: ForAll): ForAll {
+    open fun rewriteForAll(toRewrite: ForAll): FOLFormula {
         return ForAll(rewrite(toRewrite.child), toRewrite.varName)
     }
 
-    open fun rewriteExists(toRewrite: Exists): Exists {
+    open fun rewriteExists(toRewrite: Exists): FOLFormula {
         return Exists(rewrite(toRewrite.child), toRewrite.varName)
     }
 

@@ -18,38 +18,9 @@ abstract class EquivalenceImpl : Equivalence{
     private fun matchesImpl(formula: FOLFormula,pattern:FOLFormula): Boolean {
         var res: Int = 0;
         object : RewritingVisitor(){
-            override fun rewriteAnd(toRewrite: And): And {
-                return super.rewriteAnd(toRewrite)
-            }
 
-            override fun rewriteExists(toRewrite: Exists): Exists {
-                return super.rewriteExists(toRewrite)
-            }
-
-            override fun rewriteForAll(toRewrite: ForAll): ForAll {
-                return super.rewriteForAll(toRewrite)
-            }
-
-            override fun rewriteIFF(toRewrite: IFF): IFF {
-                return super.rewriteIFF(toRewrite)
-            }
-
-            override fun rewriteImplies(toRewrite: Implies): Implies {
-                return super.rewriteImplies(toRewrite)
-            }
-
-            override fun rewriteNegation(toRewrite: Negation): Negation {
-                return super.rewriteNegation(toRewrite)
-            }
-
-            override fun rewriteOr(toRewrite: Or): Or {
-                return super.rewriteOr(toRewrite)
-            }
-
-            override fun rewritePredicateAtom(toRewrite: PredicateAtom): PredicateAtom {
-                return super.rewritePredicateAtom(toRewrite)
-            }
         }
+        TODO()
     }
 }
 
