@@ -1,6 +1,6 @@
 package uk.ac.ic.doc.fpn17.logic
 
-abstract class RewriteRules() {
+abstract class RewritingVisitor() {
 
     open fun rewrite(original: FOLFormula): FOLFormula {
         return when (original) {
@@ -53,7 +53,7 @@ abstract class RewriteRules() {
 
 
 public fun renameVar(formula: FOLFormula, from: VariableName, to: VariableName): FOLFormula {
-    return object : RewriteRules() {
+    return object : RewritingVisitor() {
         override fun rewriteForAll(toRewrite: ForAll): ForAll {
             return ForAll(rewrite(toRewrite.child), if (from == toRewrite.varName) to else toRewrite.varName)
         }
