@@ -46,26 +46,26 @@ class PropositionalEquivalenceImplTest {
 
     @Test
     fun testFormula1() {
-        assertEquals(equivalance1.matches(formula1),2);
-        assertEquals(equivalance2.matches(formula1),1);
-        assertEquals(equivalance3.matches(formula1),1);
-        assertEquals(equivalance4.matches(formula1),0);
+        assertEquals(2,equivalance1.matches(formula1));
+        assertEquals(2,equivalance2.matches(formula1));
+        assertEquals(1,equivalance3.matches(formula1));
+        assertEquals(0,equivalance4.matches(formula1));
     }
 
     @Test
     fun testFormula2() {
-        assertEquals(equivalance1.matches(formula2),1)
-        assertEquals(equivalance2.matches(formula2),0)
-        assertEquals(equivalance3.matches(formula2),1)
-        assertEquals(equivalance4.matches(formula2),0)
+        assertEquals(1,equivalance1.matches(formula2))
+        assertEquals(0,equivalance2.matches(formula2))
+        assertEquals(1,equivalance3.matches(formula2))
+        assertEquals(1,equivalance4.matches(formula2))
     }
 
     @Test
     fun testFormula3() {
-        assertEquals(equivalance1.matches(formula3),3)
-        assertEquals(equivalance2.matches(formula3),1)
-        assertEquals(equivalance3.matches(formula3),2)
-        assertEquals(equivalance4.matches(formula3),1)
+        assertEquals(3,equivalance1.matches(formula3))
+        assertEquals(2,equivalance2.matches(formula3))
+        assertEquals(2,equivalance3.matches(formula3))
+        assertEquals(2,equivalance4.matches(formula3))
     }
 }
 

@@ -87,6 +87,7 @@ abstract class EquivalenceImpl : Equivalence{
                         } else {
                             //todo check variables
                             matchSubstitutions.matchedPatterns[subPattern] = subFormula;
+                            return true
                         }
                     } else {
                         TODO()
