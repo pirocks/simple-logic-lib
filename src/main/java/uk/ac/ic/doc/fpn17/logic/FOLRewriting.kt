@@ -36,7 +36,7 @@ abstract class RewritingVisitor() {
     }
 
     open fun rewritePredicateAtom(toRewrite: PredicateAtom): FOLFormula {
-        return toRewrite.copy()
+        return toRewrite
     }
 
     open fun rewriteAnd(toRewrite: And): FOLFormula {
