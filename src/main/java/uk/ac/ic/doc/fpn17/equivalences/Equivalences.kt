@@ -20,6 +20,10 @@ abstract class EquivalenceImpl : Equivalence{
     abstract val patternFrom:FOLFormula;
     abstract val patternTo:FOLFormula;
 
+    override fun matches(formula: FOLFormula):Int{
+        return matchesImpl(formula,patternFrom);
+    }
+
     private fun matchesImpl(formula: FOLFormula,pattern:FOLFormula): Int {
         var res: Int = 0;
         class MatchSubstitutions{
@@ -40,7 +44,7 @@ abstract class EquivalenceImpl : Equivalence{
 
                 try {
                     for (i in 0 until subFormula.subFormulas.size){
-                        if(!recursivelyCheckMatch(subFormula, subPattern, matchSubstitutions)){
+                        if(!recursivelyCheckMatch(subFormula.subFormulas[i], subPattern.subFormulas[i], matchSubstitutions)){
                             return false
                         }
                     }
@@ -104,6 +108,12 @@ abstract class EquivalenceImpl : Equivalence{
     }
 }
 
+
+class ArbritraryEquivalance(override val patternFrom: FOLFormula, override val patternTo: FOLFormula) : EquivalenceImpl() {
+    override fun apply(formula: FOLFormula, index: Int): FOLFormula {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
 /*
 equivalences to implement:
 and:
