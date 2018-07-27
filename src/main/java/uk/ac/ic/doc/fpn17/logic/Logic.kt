@@ -6,6 +6,18 @@ import java.util.*
 
 val nameIndex: MutableMap<UUID, String> = mutableMapOf()
 
+
+/**
+ * represents anything with an ast
+ */
+interface Formula{
+    abstract val subFormulas: Array<FOLFormula>
+}
+
+interface Pattern: Formula{
+    fun matches(formula:Formula): Boolean
+}
+
 data class SignatureElement(val uuid: UUID)
 data class VariableValue(val variableName: VariableName, val value: SignatureElement)
 class VariableName {
@@ -78,8 +90,8 @@ class EqualityContext(
         val uuidVariableMappings: Map<VariableName, VariableName> = mapOf())
 
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
-sealed class FOLFormula {
-    abstract val subFormulas: Array<FOLFormula>
+sealed class FOLFormula : Formula {
+
     open fun sameAs(other: FOLFormula): Boolean {
         return sameAsImpl(other, EqualityContext())
     }
