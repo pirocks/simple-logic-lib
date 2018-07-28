@@ -1,5 +1,6 @@
 package uk.ac.ic.doc.fpn17.logic
 
+import uk.ac.ic.doc.fpn17.equivalences.MatchSubstitutions
 import uk.ac.ic.doc.fpn17.util.UUIDUtil
 import java.util.*
 
@@ -14,8 +15,18 @@ interface Formula{
     abstract val subFormulas: Array<FOLFormula>
 }
 
-interface Pattern: Formula{
-    fun matches(formula:Formula): Boolean
+interface FOLPattern: Formula{
+    fun matches(formula:FOLFormula,matchSubstitutions: MatchSubstitutions): Boolean{
+        if(formula.javaClass != javaClass){
+            return false
+        }
+        if(formula.subFormulas.isEmpty()){
+            return true
+        }
+        return (0 until formula.subFormulas.size).all {
+            subFormulas[it].matches(formula.subFormulas[it],matchSubstitutions)
+        }
+    }
 }
 
 data class SignatureElement(val uuid: UUID)
@@ -90,7 +101,7 @@ class EqualityContext(
         val uuidVariableMappings: Map<VariableName, VariableName> = mapOf())
 
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
-sealed class FOLFormula : Formula {
+sealed class FOLFormula : Formula,FOLPattern {
 
     open fun sameAs(other: FOLFormula): Boolean {
         return sameAsImpl(other, EqualityContext())
@@ -153,6 +164,19 @@ sealed class Quantifier(open val child: FOLFormula, open val varName: VariableNa
 
         val newEqualityContext = EqualityContext(equalityContext.uuidVariableMappings + mutableMapOf(Pair(other.varName, varName)))
         return child.sameAsImpl(other.child, newEqualityContext);
+    }
+
+    override fun matches(formula: FOLFormula,matchSubstitutions: MatchSubstitutions): Boolean {
+        if(formula.javaClass != javaClass){
+            return false
+        }
+        val varSubstitutions = matchSubstitutions.variableSubstitutions
+        varSubstitutions[(formula as Quantifier).varName] = varName;
+        try {
+            return formula.child.matches(child,matchSubstitutions)
+        } finally {
+            varSubstitutions.remove(formula.varName)
+        }
     }
 
 }
