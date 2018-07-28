@@ -107,4 +107,87 @@ class MultipleSamePatternsTest{
     }
 }
 
-//todo first order test
+class FOLEquivalenceTest{
+    val alwaysFalsePredicate = Predicate({ false })
+    lateinit var formula1:FOLFormula;
+    lateinit var formula2:FOLFormula;
+    lateinit var formula3:FOLFormula;
+    lateinit var formula4:FOLFormula;
+    lateinit var arbritraryEquivalance1: ArbritraryEquivalance
+    lateinit var arbritraryEquivalance2: ArbritraryEquivalance
+
+    @Before
+    fun setUp() {
+        setUpFormula1()
+        setUpFormula2()
+        setUpFormula3()
+        setUpFormula4()
+        setUpPattern1()
+        setUpPattern2()
+
+    }
+
+    private fun setUpPattern2() {
+        //search for forall and exists one after the other, with both vars potentially used
+        val forAllVar = VariableName()
+        val existsVar = VariableName()
+        val potentiallyBothVars = EquivalencePattern(arrayOf(forAllVar, existsVar))
+        val pattern = ForAll(Exists(potentiallyBothVars, existsVar), forAllVar)
+        arbritraryEquivalance2 = ArbritraryEquivalance(pattern, pattern)
+    }
+
+    private fun setUpFormula4() {
+        val forAllVar1 = VariableName()
+
+        val predicateAtom2 = PredicateAtom(alwaysFalsePredicate, arrayOf(forAllVar1))
+        formula4 = And(ForAll(Exists(predicateAtom2), forAllVar1), False())
+    }
+
+    private fun setUpPattern1() {
+        val multiUseEquivalencePattern = EquivalencePattern(arrayOf(), true)
+        val pattern1 = ForAll(multiUseEquivalencePattern)
+        arbritraryEquivalance1 = ArbritraryEquivalance(pattern1, pattern1)
+    }
+
+    private fun setUpFormula3() {
+        formula3 = ForAll(And(formula1, formula2))
+    }
+
+    private fun setUpFormula2() {
+        val forAllVar1 = VariableName()
+        val forAllVar2 = VariableName()
+        val existsVar3 = VariableName()
+
+        val predicateAtom1 = PredicateAtom(alwaysFalsePredicate, arrayOf(existsVar3, forAllVar2))
+        val predicateAtom2 = PredicateAtom(alwaysFalsePredicate, arrayOf(forAllVar1))
+        formula2 = And(ForAll(Exists(predicateAtom1, existsVar3), forAllVar2), ForAll(predicateAtom2, forAllVar1))
+    }
+
+    private fun setUpFormula1() {
+        formula1 = ForAll(Exists(True()))
+    }
+
+    @Test
+    fun testFormula1() {
+        assertEquals(1,arbritraryEquivalance1.matches(formula1))
+        assertEquals(1,arbritraryEquivalance2.matches(formula1))
+    }
+
+    @Test
+    fun testFormula2() {
+        assertEquals(2,arbritraryEquivalance1.matches(formula2))
+        assertEquals(1,arbritraryEquivalance2.matches(formula2))
+    }
+
+    @Test
+    fun testFormula3() {
+        assertEquals(3,arbritraryEquivalance1.matches(formula2))
+        assertEquals(2,arbritraryEquivalance2.matches(formula2))
+    }
+
+    @Test
+    fun testFormula4() {
+        assertEquals(1,arbritraryEquivalance1.matches(formula2))
+        assertEquals(1,arbritraryEquivalance2.matches(formula2))
+    }
+}
