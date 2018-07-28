@@ -171,9 +171,9 @@ sealed class Quantifier(open val child: FOLFormula, open val varName: VariableNa
             return false
         }
         val varSubstitutions = matchSubstitutions.variableSubstitutions
-        varSubstitutions[(formula as Quantifier).varName] = varName;
+        varSubstitutions[varName] = (formula as Quantifier).varName;
         try {
-            return formula.child.matches(child,matchSubstitutions)
+            return child.matches(formula.child,matchSubstitutions)
         } finally {
             varSubstitutions.remove(formula.varName)
         }

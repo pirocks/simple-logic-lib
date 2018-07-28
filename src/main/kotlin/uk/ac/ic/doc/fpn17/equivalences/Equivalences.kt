@@ -37,7 +37,9 @@ class EquivalencePattern(val allowedVars: Array<VariableName>,val allowsEveryVar
                 val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
                 return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
             }else{
-                if(containsVarsOtherThan(formula,allowedVars.map { matchSubstitutions.variableSubstitutions[it]!! }.toTypedArray()))
+                if(containsVarsOtherThan(formula,allowedVars.map {
+                            matchSubstitutions.variableSubstitutions[it]!!
+                        }.toTypedArray()))
                     return false
                 matchSubstitutions.matchedPatterns[this] = formula;
                 return true

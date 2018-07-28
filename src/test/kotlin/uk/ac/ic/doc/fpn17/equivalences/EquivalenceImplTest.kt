@@ -136,17 +136,17 @@ class FOLEquivalenceTest{
         arbritraryEquivalance2 = ArbritraryEquivalance(pattern, pattern)
     }
 
+    private fun setUpPattern1() {
+        val multiUseEquivalencePattern = EquivalencePattern(arrayOf(), true)
+        val pattern1 = ForAll(multiUseEquivalencePattern)
+        arbritraryEquivalance1 = ArbritraryEquivalance(pattern1, pattern1)
+    }
+
     private fun setUpFormula4() {
         val forAllVar1 = VariableName()
 
         val predicateAtom2 = PredicateAtom(alwaysFalsePredicate, arrayOf(forAllVar1))
         formula4 = And(ForAll(Exists(predicateAtom2), forAllVar1), False())
-    }
-
-    private fun setUpPattern1() {
-        val multiUseEquivalencePattern = EquivalencePattern(arrayOf(), true)
-        val pattern1 = ForAll(multiUseEquivalencePattern)
-        arbritraryEquivalance1 = ArbritraryEquivalance(pattern1, pattern1)
     }
 
     private fun setUpFormula3() {
