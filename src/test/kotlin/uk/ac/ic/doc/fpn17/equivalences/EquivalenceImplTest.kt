@@ -71,7 +71,7 @@ class PropositionalEquivalenceImplTest {
 
 class MultipleSamePatternsTest{
     val formula1: FOLFormula = And(True(),True())
-    val formula2: FOLFormula = And(Or(True(),True()),Or(True(),True()))
+    val formula2: FOLFormula = And(And(True(),True()),And(True(),True()))
     val formula3 : FOLFormula = And(And(True(),True()),And(False(),True()))
     val formula4: FOLFormula = And(True(),False())
     lateinit var pattern1 : FOLPattern
