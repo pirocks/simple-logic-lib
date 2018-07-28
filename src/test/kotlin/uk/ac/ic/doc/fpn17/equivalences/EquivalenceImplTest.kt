@@ -8,10 +8,10 @@ import kotlin.test.assertEquals
 
 class PropositionalEquivalenceImplTest {
     // create new interface hierarchy which implements pattern, and implements matches as interface member
-    lateinit var pattern1 : FOLFormula
-    lateinit var pattern2 : FOLFormula
-    lateinit var pattern3 : FOLFormula
-    lateinit var pattern4 : FOLFormula
+    lateinit var pattern1 : FOLPattern
+    lateinit var pattern2 : FOLPattern
+    lateinit var pattern3 : FOLPattern
+    lateinit var pattern4 : FOLPattern
     lateinit var formula1 : FOLFormula
     lateinit var formula2 : FOLFormula
     lateinit var formula3 : FOLFormula
@@ -66,6 +66,44 @@ class PropositionalEquivalenceImplTest {
         assertEquals(2,equivalance2.matches(formula3))
         assertEquals(2,equivalance3.matches(formula3))
         assertEquals(2,equivalance4.matches(formula3))
+    }
+}
+
+class MultipleSamePatternsTest{
+    val formula1: FOLFormula = And(True(),True())
+    val formula2: FOLFormula = And(Or(True(),True()),Or(True(),True()))
+    val formula3 : FOLFormula = And(And(True(),True()),And(False(),True()))
+    val formula4: FOLFormula = And(True(),False())
+    lateinit var pattern1 : FOLPattern
+    lateinit var arbritraryEquivalance1: ArbritraryEquivalance
+    @Before
+    fun setUp(){
+        val patternAtom = EquivalencePattern(arrayOf(),true)
+        pattern1 = And(patternAtom,patternAtom)
+        arbritraryEquivalance1 = ArbritraryEquivalance(pattern1,pattern1);
+    }
+
+    @Test
+    fun testFormula1() {
+        assertEquals(1,arbritraryEquivalance1.matches(formula1));
+
+    }
+
+    @Test
+    fun testFormula2() {
+        assertEquals(3,arbritraryEquivalance1.matches(formula2))
+
+    }
+
+    @Test
+    fun testFormula3() {
+        assertEquals(1,arbritraryEquivalance1.matches(formula3))
+
+    }
+
+    @Test
+    fun testFormula4() {
+        assertEquals(0,arbritraryEquivalance1.matches(formula4))
     }
 }
 

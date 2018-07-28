@@ -79,7 +79,7 @@ abstract class EquivalenceImpl : Equivalence{
 }
 
 
-class ArbritraryEquivalance(override val patternFrom: FOLFormula, override val patternTo: FOLFormula) : EquivalenceImpl() {
+class ArbritraryEquivalance(override val patternFrom: FOLPattern, override val patternTo: FOLPattern) : EquivalenceImpl() {
     override fun apply(formula: FOLFormula, index: Int): FOLFormula {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
