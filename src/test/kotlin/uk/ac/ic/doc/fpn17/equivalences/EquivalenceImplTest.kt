@@ -181,13 +181,13 @@ class FOLEquivalenceTest{
 
     @Test
     fun testFormula3() {
-        assertEquals(3,arbritraryEquivalance1.matches(formula2))
-        assertEquals(2,arbritraryEquivalance2.matches(formula2))
+        assertEquals(4,arbritraryEquivalance1.matches(formula3))
+        assertEquals(2,arbritraryEquivalance2.matches(formula3))
     }
 
     @Test
     fun testFormula4() {
-        assertEquals(1,arbritraryEquivalance1.matches(formula2))
-        assertEquals(1,arbritraryEquivalance2.matches(formula2))
+        assertEquals(1,arbritraryEquivalance1.matches(formula4))
+        assertEquals(1,arbritraryEquivalance2.matches(formula4))
     }
 }

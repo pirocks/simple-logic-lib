@@ -65,7 +65,7 @@ abstract class EquivalenceImpl : Equivalence{
     private fun matchesImpl(formula: FOLFormula,pattern:FOLPattern): Int {
         var res: Int = 0;
 
-        object : RewritingVisitor(){
+        val rewritten = object : RewritingVisitor(){
 
             override fun rewrite(original: FOLFormula): FOLFormula {
                 if(original.javaClass == pattern.javaClass){
@@ -76,6 +76,7 @@ abstract class EquivalenceImpl : Equivalence{
                 return super.rewrite(original)
             }
         }.rewrite(formula)
+        assert(rewritten.sameAs(formula))
         return res
     }
 }
