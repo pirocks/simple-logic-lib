@@ -46,9 +46,9 @@ class EquivalencePattern(val allowedVars: Array<VariableName>,val allowsEveryVar
             }
         }
     }
-
-
 }
+
+
 
 //there will be one equivalence for left direction, and one for right
 /**

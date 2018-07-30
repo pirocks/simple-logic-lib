@@ -352,3 +352,73 @@ data class Exists(override val child: FOLFormula, override val varName: Variable
         return res
     }
 }
+
+
+//todo technically this could all done with a predicate atom
+//todo maybe make atom class to abstract the redundancy here:
+class EvaluatedAPatternException() : Exception("You tried to eveluate a pattern. Patterns cannot be evaluated by definition.")
+
+class AllowAllVars : FOLFormula(){
+    override fun toMathML2(): String {
+        TODO("not implemented")
+    }
+
+    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
+
+    }
+
+    override fun sameAs(other: FOLFormula): Boolean {
+        TODO("Need to translate variables to check sameness")
+    }
+
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
+        TODO("Need to translate variables to check sameness")
+    }
+
+    override fun evaluate(ev: EvalContext): Boolean {
+        throw EvaluatedAPatternException()
+    }
+
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf()
+}
+
+class AllowOnlyCertainVars(val vars: Array<VariableName>) : FOLFormula() {
+    override fun toMathML2(): String {
+        TODO("not implemented")
+    }
+
+    override fun sameAs(other: FOLFormula): Boolean {
+        TODO("Need to translate variables to check sameness")
+    }
+
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
+        TODO("Need to translate variables to check sameness")
+    }
+
+    override fun evaluate(ev: EvalContext): Boolean {
+        throw EvaluatedAPatternException()
+    }
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf()
+}
+
+class ForbidCertainVars(val vars: Array<VariableName>) : FOLFormula() {
+    override fun toMathML2(): String {
+        TODO("not implemented")
+    }
+
+    override fun sameAs(other: FOLFormula): Boolean {
+        TODO("Need to translate variables to check sameness")
+    }
+
+    override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
+        TODO("Need to translate variables to check sameness")
+    }
+
+    override fun evaluate(ev: EvalContext): Boolean {
+        throw EvaluatedAPatternException()
+    }
+    override val subFormulas: Array<FOLFormula>
+        get() = arrayOf()
+}
