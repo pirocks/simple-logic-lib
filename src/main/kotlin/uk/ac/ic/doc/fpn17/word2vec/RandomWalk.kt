@@ -16,7 +16,7 @@ fun <E> List<E>.random(random: java.util.Random): E? = if (size > 0) get(random.
 val equivalencesAvailable: List<Equivalence> = arrayOf(OrAssociativityReverse(), OrAssociativity(), OrIntroductionFalseVariant(), OrIntroductionTrueVariant1(), AndAssociativityReverse(), AndAssociativity(), AndContradiction(), AndFalse1(), AndFalse2(),ReverseAndTrue1(), ReverseAndTrue2(), ReverseAAndA(), AndTrue1(), AndTrue2(), AAndA(), CommutativityAnd(), CommutativityOr()).asList()
 
 fun doWalks(start: FOLFormula = False(), numWalks: Int = (1024 * 1024), lengthWalks: Int = 16): Array<Array<String>> {
-    return (0 until numWalks).toList()/*.parallelStream()*/.map { _ ->
+    return (0 until numWalks).toList().parallelStream().map { _ ->
         doWalk(start, lengthWalks)
     }.toList().toTypedArray()
 }
@@ -47,11 +47,12 @@ fun doWalk(start: FOLFormula, lengthWalks: Int = 16, random: Random = Random()):
         }
     }
     var current = start;
-    return (0 until lengthWalks).map {
+    val res = (0 until lengthWalks).map {
         val prev = current
         current = nextFormula(current);
         formulaToWord(prev)
     }.toTypedArray()
+    return res;
 }
 
 fun main(args: Array<String>) {

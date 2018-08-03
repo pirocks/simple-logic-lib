@@ -2,6 +2,7 @@ package uk.ac.ic.doc.fpn17.logic
 
 import uk.ac.ic.doc.fpn17.equivalences.MatchSubstitutions
 import uk.ac.ic.doc.fpn17.util.UUIDUtil
+import java.io.Serializable
 import java.util.*
 
 
@@ -11,7 +12,7 @@ val nameIndex: MutableMap<UUID, String> = mutableMapOf()
 /**
  * represents anything with an ast
  */
-interface Formula{
+interface Formula: Serializable{
     abstract val subFormulas: Array<FOLFormula>
 }
 
