@@ -358,13 +358,26 @@ data class Exists(override val child: FOLFormula, override val varName: Variable
 //todo maybe make atom class to abstract the redundancy here:
 class EvaluatedAPatternException() : Exception("You tried to eveluate a pattern. Patterns cannot be evaluated by definition.")
 
-class AllowAllVars : FOLFormula(){
+sealed class PatternMatchers : FOLFormula()
+
+class AllowAllVars : PatternMatchers(){
     override fun toMathML2(): String {
         TODO("not implemented")
     }
 
     override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
-
+        val actualFormula = formula
+        if (this in matchSubstitutions.matchedPatterns) {
+            //we already found this pattern elsewhere
+            //need to check if same as elsewhere
+            val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
+            //todo check that the order of parameters does not need reversing
+            //todo this could still encounter vars from higher up the rewriting visitor
+            return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
+        } else {
+            matchSubstitutions.matchedPatterns[this] = formula;
+            return true
+        }
     }
 
     override fun sameAs(other: FOLFormula): Boolean {
@@ -388,6 +401,10 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : FOLFormula() {
         TODO("not implemented")
     }
 
+    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
+        TODO("Needs implementation")
+    }
+
     override fun sameAs(other: FOLFormula): Boolean {
         TODO("Need to translate variables to check sameness")
     }
@@ -406,6 +423,10 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : FOLFormula() {
 class ForbidCertainVars(val vars: Array<VariableName>) : FOLFormula() {
     override fun toMathML2(): String {
         TODO("not implemented")
+    }
+
+    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
+        TODO("Needs implementation")
     }
 
     override fun sameAs(other: FOLFormula): Boolean {

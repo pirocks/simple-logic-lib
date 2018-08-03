@@ -11,42 +11,42 @@ interface Equivalence{
 }
 
 class MatchSubstitutions{
-    val matchedPatterns: MutableMap<EquivalencePattern,FOLFormula> = mutableMapOf()
+    val matchedPatterns: MutableMap<PatternMatchers,FOLFormula> = mutableMapOf()
     // from formula variable names to pattern variable names
     val variableSubstitutions: MutableMap<VariableName,VariableName> = mutableMapOf()
 }
 
-class EquivalencePattern(val allowedVars: Array<VariableName>,val allowsEveryVar:Boolean = false) : PredicateAtom(Predicate({throw IllegalStateException("Tried to evaluate an equivalence pattern") }),allowedVars){
-    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
-        val actualFormula = formula
-        if (allowsEveryVar) {
-            if (this in matchSubstitutions.matchedPatterns) {
-                //we already found this pattern elsewhere
-                //need to check if same as elsewhere
-                val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
-                //todo check that the order of parameters does not need reversing
-                //todo this could still encounter vars from higher up the rewriting visitor
-                return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
-            } else {
-                //todo check variables
-                matchSubstitutions.matchedPatterns[this] = formula;
-                return true
-            }
-        } else {
-            if(this in matchSubstitutions.matchedPatterns){
-                val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
-                return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
-            }else{
-                if(containsVarsOtherThan(formula,allowedVars.map {
-                            matchSubstitutions.variableSubstitutions[it]!!
-                        }.toTypedArray()))
-                    return false
-                matchSubstitutions.matchedPatterns[this] = formula;
-                return true
-            }
-        }
-    }
-}
+//class EquivalencePattern(val allowedVars: Array<VariableName>,val allowsEveryVar:Boolean = false) : PredicateAtom(Predicate({throw IllegalStateException("Tried to evaluate an equivalence pattern") }),allowedVars){
+//    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
+//        val actualFormula = formula
+//        if (allowsEveryVar) {
+//            if (this in matchSubstitutions.matchedPatterns) {
+//                //we already found this pattern elsewhere
+//                //need to check if same as elsewhere
+//                val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
+//                //todo check that the order of parameters does not need reversing
+//                //todo this could still encounter vars from higher up the rewriting visitor
+//                return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
+//            } else {
+//                //todo check variables
+//                matchSubstitutions.matchedPatterns[this] = formula;
+//                return true
+//            }
+//        } else {
+//            if(this in matchSubstitutions.matchedPatterns){
+//                val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
+//                return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
+//            }else{
+//                if(containsVarsOtherThan(formula,allowedVars.map {
+//                            matchSubstitutions.variableSubstitutions[it]!!
+//                        }.toTypedArray()))
+//                    return false
+//                matchSubstitutions.matchedPatterns[this] = formula;
+//                return true
+//            }
+//        }
+//    }
+//}
 
 
 
