@@ -68,10 +68,8 @@ sealed class EquivalenceImpl : Equivalence{
         val rewritten = object : RewritingVisitor(){
 
             override fun rewrite(original: FOLFormula): FOLFormula {
-                if(original.javaClass == pattern.javaClass){
-                    if(pattern.matches(original,MatchSubstitutions())){
-                        res++;
-                    }
+                if(pattern.matches(original,MatchSubstitutions())){
+                    res++;
                 }
                 return super.rewrite(original)
             }
@@ -93,18 +91,17 @@ sealed class EquivalenceImpl : Equivalence{
 
         val rewritten = object : RewritingVisitor(){
             override fun rewrite(original: FOLFormula): FOLFormula {
-                if(original.javaClass == patternFrom.javaClass){
-                    val matchSubstitutions = MatchSubstitutions()
-                    if(patternFrom.matches(original, matchSubstitutions)){
-                        try {
-                            if(index == targetIndex){
-                                return applySubstitutions(patternTo,matchSubstitutions)
-                            }
-                        } finally {
-                            index++;
+                val matchSubstitutions = MatchSubstitutions()
+                if(patternFrom.matches(original, matchSubstitutions)){
+                    try {
+                        if(index == targetIndex){
+                            return applySubstitutions(patternTo,matchSubstitutions)
                         }
+                    } finally {
+                        index++;
                     }
                 }
+
                 return super.rewrite(original)
             }
         }.rewrite(formula)
@@ -222,24 +219,6 @@ class AndFalse2 : EquivalenceImpl(){
     override val patternFrom: FOLPattern
         get() = And(False(),a)
     override val patternTo: FOLPattern
-        get() = False()
-
-}
-
-
-class ReverseAndFalse1 : EquivalenceImpl(){
-    val a = AllowAllVars()
-    override val patternTo: FOLPattern
-        get() = And(a,False())
-    override val patternFrom: FOLPattern
-        get() = False()
-}
-
-class ReverseAndFalse2 : EquivalenceImpl(){
-    val a = AllowAllVars()
-    override val patternTo: FOLPattern
-        get() = And(False(),a)
-    override val patternFrom: FOLPattern
         get() = False()
 
 }
