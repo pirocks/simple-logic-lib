@@ -10,7 +10,14 @@ abstract class RewritingVisitor() {
             is Negation -> rewriteNegation(original)
             is BinaryRelation -> rewriteBinaryRelation(original)
             is Quantifier -> rewriteQuantifier(original)
+            is AllowAllVars -> rewriteAllowAllVars(original)
+            is AllowOnlyCertainVars -> TODO()
+            is ForbidCertainVars -> TODO()
         }
+    }
+
+    open fun rewriteAllowAllVars(original: AllowAllVars): FOLFormula {
+        return AllowAllVars()
     }
 
     /**

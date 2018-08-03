@@ -7,7 +7,7 @@ import java.lang.IllegalStateException
 interface Equivalence{
     fun matches(formula:FOLFormula):Int
 
-    fun apply(formula: FOLFormula, index:Int):FOLFormula
+    fun apply(formula: FOLFormula, targetIndex:Int):FOLFormula
 }
 
 class MatchSubstitutions{
@@ -54,7 +54,7 @@ class MatchSubstitutions{
 /**
  * Patterns should not include free variables. Use equivalence pattern instead.
  */
-abstract class EquivalenceImpl : Equivalence{
+sealed class EquivalenceImpl : Equivalence{
     abstract val patternFrom:FOLPattern;
     abstract val patternTo:FOLPattern;
 
@@ -79,11 +79,43 @@ abstract class EquivalenceImpl : Equivalence{
         assert(rewritten.sameAs(formula))
         return res
     }
+
+    override fun apply(formula: FOLFormula, targetIndex: Int): FOLFormula {
+
+        fun applySubstitutions(patternTo: FOLPattern, matchSubstitutions: MatchSubstitutions): FOLFormula {
+            return object : RewritingVisitor() {
+                override fun rewriteAllowAllVars(original: AllowAllVars): FOLFormula {
+                    return matchSubstitutions.matchedPatterns[original]!!
+                }
+            }.rewrite(patternTo as FOLFormula)
+        }
+        var index : Int= 0;
+
+        val rewritten = object : RewritingVisitor(){
+            override fun rewrite(original: FOLFormula): FOLFormula {
+                if(original.javaClass == patternFrom.javaClass){
+                    val matchSubstitutions = MatchSubstitutions()
+                    if(patternFrom.matches(original, matchSubstitutions)){
+                        try {
+                            if(index == targetIndex){
+                                return applySubstitutions(patternTo,matchSubstitutions)
+                            }
+                        } finally {
+                            index++;
+                        }
+                    }
+                }
+                return super.rewrite(original)
+            }
+        }.rewrite(formula)
+        return rewritten
+
+    }
 }
 
 
 class ArbritraryEquivalance(override val patternFrom: FOLPattern, override val patternTo: FOLPattern) : EquivalenceImpl() {
-    override fun apply(formula: FOLFormula, index: Int): FOLFormula {
+    override fun apply(formula: FOLFormula, targetIndex: Int): FOLFormula {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
@@ -101,3 +133,198 @@ or:
 iff:
 
  */
+
+class OrAssociativityReverse : EquivalenceImpl(){
+    val a = AllowAllVars()
+    val b = AllowAllVars()
+    val c = AllowAllVars()
+    override val patternTo: FOLPattern
+        get() = Or(a,Or(b,c))
+    override val patternFrom: FOLPattern
+        get() = Or(Or(a,b),c)
+
+}
+
+class OrAssociativity : EquivalenceImpl(){
+    val a = AllowAllVars()
+    val b = AllowAllVars()
+    val c = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = Or(a,Or(b,c))
+    override val patternTo: FOLPattern
+        get() = Or(Or(a,b),c)
+
+}
+
+class OrIntroductionFalseVariant : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = a
+    override val patternTo: FOLPattern
+        get() = Or(a,False())
+
+}
+
+class OrIntroductionTrueVariant1 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = a
+    override val patternTo: FOLPattern
+        get() = Or(a,True())
+
+}
+
+
+/**
+ * todo clean up reverse duplication
+ */
+class AndAssociativityReverse : EquivalenceImpl(){
+    val a = AllowAllVars()
+    val b = AllowAllVars()
+    val c = AllowAllVars()
+    override val patternTo: FOLPattern
+        get() = And(a,And(b,c))
+    override val patternFrom: FOLPattern
+        get() = And(And(a,b),c)
+
+}
+
+class AndAssociativity : EquivalenceImpl(){
+    val a = AllowAllVars()
+    val b = AllowAllVars()
+    val c = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = And(a,And(b,c))
+    override val patternTo: FOLPattern
+        get() = And(And(a,b),c)
+
+}
+
+class AndContradiction : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = And(a,Negation(a))
+    override val patternTo: FOLPattern
+        get() = False()
+
+}
+
+class AndFalse1 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = And(a,False())
+    override val patternTo: FOLPattern
+        get() = False()
+}
+
+class AndFalse2 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = And(False(),a)
+    override val patternTo: FOLPattern
+        get() = False()
+
+}
+
+
+class ReverseAndFalse1 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternTo: FOLPattern
+        get() = And(a,False())
+    override val patternFrom: FOLPattern
+        get() = False()
+}
+
+class ReverseAndFalse2 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternTo: FOLPattern
+        get() = And(False(),a)
+    override val patternFrom: FOLPattern
+        get() = False()
+
+}
+
+
+class ReverseAndTrue1 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternTo: FOLPattern
+        get() = And(a,True())
+    override val patternFrom: FOLPattern
+        get() = a
+}
+
+class ReverseAndTrue2 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternTo: FOLPattern
+        get() = And(True(),a)
+    override val patternFrom: FOLPattern
+        get() = a
+
+}
+
+class ReverseAAndA : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternTo: FOLPattern
+        get() = And(a,a)
+    override val patternFrom: FOLPattern
+        get() = a
+}
+
+/**
+ * todo clean up duplication with and a.
+ */
+class AndTrue1 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = And(a,True())
+    override val patternTo: FOLPattern
+        get() = a
+}
+
+class AndTrue2 : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = And(True(),a)
+    override val patternTo: FOLPattern
+        get() = a
+
+}
+
+class AAndA : EquivalenceImpl(){
+    val a = AllowAllVars()
+    override val patternFrom: FOLPattern
+        get() = And(a,a)
+    override val patternTo: FOLPattern
+        get() = a
+}
+
+class CommutativityAnd : EquivalenceImpl() {
+    val a = AllowAllVars()
+    val b = AllowAllVars()
+
+    override val patternFrom: FOLPattern
+        get() = And(a,b)
+    override val patternTo: FOLPattern
+        get() = And(b,a)
+}
+
+class CommutativityOr : EquivalenceImpl() {
+    val a = AllowAllVars()
+    val b = AllowAllVars()
+
+    override val patternFrom: FOLPattern
+        get() = Or(a,b)
+    override val patternTo: FOLPattern
+        get() = Or(b,a)
+}
+
+
+class CommutativityIFF : EquivalenceImpl() {
+    val a = AllowAllVars()
+    val b = AllowAllVars()
+
+    override val patternFrom: FOLPattern
+        get() = IFF(a,b)
+    override val patternTo: FOLPattern
+        get() = IFF(b,a)
+}
