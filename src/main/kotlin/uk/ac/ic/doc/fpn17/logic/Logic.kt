@@ -124,6 +124,7 @@ sealed class FOLFormula : Formula,FOLPattern {
     abstract fun evaluate(ev: EvalContext): Boolean
     abstract fun toMathML2(): String
     fun toHtml(): String = ("<math> <mrow>" + toMathML2() + "</mrow> </math>").replace("\\s(?!separators)".toRegex(), "").trim().trimIndent()
+    abstract fun toPrefixNotation(): String
 
 }
 
@@ -183,6 +184,8 @@ sealed class Quantifier(open val child: FOLFormula, open val varName: VariableNa
 }
 
 class True : FOLFormula() {
+    override fun toPrefixNotation(): String = "T"
+
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean = other is True;
 
     override val subFormulas: Array<FOLFormula>
@@ -204,6 +207,7 @@ class True : FOLFormula() {
 }
 
 class False : FOLFormula() {
+    override fun toPrefixNotation(): String = "F"
 
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean = other is False;
 
@@ -226,6 +230,10 @@ class False : FOLFormula() {
 }
 
 open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula() {
+    override fun toPrefixNotation(): String {
+        TODO("needs implementation")
+    }
+
     override fun sameAs(other: FOLFormula): Boolean {
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
         assert(expectedArgs.isEmpty())
@@ -288,6 +296,8 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
 }
 
 data class And(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+    override fun toPrefixNotation(): String = """(and ${left.toPrefixNotation()} ${right.toPrefixNotation()})"""
+
     override fun getOperatorAsMathML(): String = "&and;";
     override fun toMathML2(): String = """
         <mrow>
@@ -301,11 +311,13 @@ data class And(override val left: FOLFormula, override val right: FOLFormula) : 
 }
 
 data class Or(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+    override fun toPrefixNotation(): String = """(or ${left.toPrefixNotation()} ${right.toPrefixNotation()})"""
     override fun getOperatorAsMathML(): String = "&or;"
     override fun evaluate(ev: EvalContext): Boolean = left.evaluate(ev) || right.evaluate(ev)
 }
 
 data class Negation(val child: FOLFormula) : FOLFormula() {
+    override fun toPrefixNotation(): String = """(neg ${child.toPrefixNotation()})"""
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
 
@@ -319,16 +331,23 @@ data class Negation(val child: FOLFormula) : FOLFormula() {
 }
 
 data class Implies(val given: FOLFormula, val result: FOLFormula) : BinaryRelation(given, result) {
+    override fun toPrefixNotation(): String = """(implies ${given.toPrefixNotation()} ${result.toPrefixNotation()})"""
     override fun getOperatorAsMathML(): String = "&rArr;"
     override fun evaluate(ev: EvalContext): Boolean = !given.evaluate(ev) || result.evaluate(ev)
 }
 
 data class IFF(val one: FOLFormula, val two: FOLFormula) : BinaryRelation(one, two) {
+    override fun toPrefixNotation(): String = """(iff ${one.toPrefixNotation()} ${two.toPrefixNotation()})"""
     override fun getOperatorAsMathML(): String = "&hArr;"
     override fun evaluate(ev: EvalContext): Boolean = one.evaluate(ev) == two.evaluate(ev)
 }
 
 data class ForAll(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+    override fun toPrefixNotation(): String {
+        TODO("needs implementation")
+    }
+
+
     override val quantifierSymbol: String
         get() = "&forall;"
 
@@ -342,6 +361,10 @@ data class ForAll(override val child: FOLFormula, override val varName: Variable
 }
 
 data class Exists(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+    override fun toPrefixNotation(): String {
+        TODO("needs implementation")
+    }
+
     override val quantifierSymbol: String
         get() = "&exist;"
 
@@ -362,6 +385,11 @@ class EvaluatedAPatternException() : Exception("You tried to eveluate a pattern.
 sealed class PatternMatchers : FOLFormula()
 
 class AllowAllVars : PatternMatchers(){
+    override fun toPrefixNotation(): String {
+        TODO("needs implementation")
+    }
+
+
     override fun toMathML2(): String {
         TODO("not implemented")
     }
@@ -398,6 +426,11 @@ class AllowAllVars : PatternMatchers(){
 }
 
 class AllowOnlyCertainVars(val vars: Array<VariableName>) : FOLFormula() {
+    override fun toPrefixNotation(): String {
+        TODO("needs implementation")
+    }
+
+
     override fun toMathML2(): String {
         TODO("not implemented")
     }
@@ -422,6 +455,10 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : FOLFormula() {
 }
 
 class ForbidCertainVars(val vars: Array<VariableName>) : FOLFormula() {
+    override fun toPrefixNotation(): String {
+        TODO("needs implementation")
+    }
+
     override fun toMathML2(): String {
         TODO("not implemented")
     }
