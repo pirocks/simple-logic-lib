@@ -230,9 +230,7 @@ class False : FOLFormula() {
 }
 
 open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula() {
-    override fun toPrefixNotation(): String {
-        TODO("needs implementation")
-    }
+    override fun toPrefixNotation(): String = """(${predicateString()} ${expectedArgs.map { it.name }.reduceRight{s, acc -> s + " " + acc }}"""
 
     override fun sameAs(other: FOLFormula): Boolean {
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
@@ -345,9 +343,7 @@ data class IFF(val one: FOLFormula, val two: FOLFormula) : BinaryRelation(one, t
 }
 
 data class ForAll(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
-    override fun toPrefixNotation(): String {
-        TODO("needs implementation")
-    }
+    override fun toPrefixNotation(): String = """(forall ${child.toPrefixNotation()})"""
 
 
     override val quantifierSymbol: String
@@ -363,9 +359,7 @@ data class ForAll(override val child: FOLFormula, override val varName: Variable
 }
 
 data class Exists(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
-    override fun toPrefixNotation(): String {
-        TODO("needs implementation")
-    }
+    override fun toPrefixNotation(): String = """(exists ${child.toPrefixNotation()})"""
 
     override val quantifierSymbol: String
         get() = "&exist;"
