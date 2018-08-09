@@ -329,6 +329,8 @@ data class Negation(val child: FOLFormula) : FOLFormula() {
 
     override fun evaluate(ev: EvalContext): Boolean = !child.evaluate(ev)
 }
+typealias Not = Negation
+
 
 data class Implies(val given: FOLFormula, val result: FOLFormula) : BinaryRelation(given, result) {
     override fun toPrefixNotation(): String = """(implies ${given.toPrefixNotation()} ${result.toPrefixNotation()})"""

@@ -12,7 +12,6 @@ companion object {
         val predicate = PredicateAtom(Predicate({ false }), arrayOf(forAllVar, existsVar))
         val baseExpression = And(Or(IFF(predicate, True()), False()), Implies(True(), False()))
         println(Exists(ForAll(baseExpression,forAllVar),existsVar).toHtml())
-//    println((PredicateAtom(Predicate({ arrayOfVariables -> false }), arrayOf(VariableName(),VariableName()) )).toHtml())
     }
 }
 
