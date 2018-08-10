@@ -104,7 +104,7 @@ class AImpliesFalseReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: EquivalenceImpl
         get() = AImpliesFalseReverse()
     override val expression: FOLFormula
-        get() = And(aPredicate,Implies(falseAtom, bPredicate))
+        get() = And(aPredicate,Implies(bPredicate, falseAtom))
 }
 class ImpliesAsOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: EquivalenceImpl

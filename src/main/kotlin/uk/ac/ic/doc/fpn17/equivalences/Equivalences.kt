@@ -90,13 +90,14 @@ sealed class EquivalenceImpl : Equivalence {
         }
 
         var index: Int = 0;
-
+        var patternFound = false;
         val rewritten = object : RewritingVisitor() {
             override fun rewrite(original: FOLFormula): FOLFormula {
                 val matchSubstitutions = MatchSubstitutions()
                 if (patternFrom.matches(original, matchSubstitutions)) {
                     try {
                         if (index == targetIndex) {
+                            patternFound = true
                             return applySubstitutions(patternTo, matchSubstitutions)
                         }
                     } finally {
@@ -107,6 +108,7 @@ sealed class EquivalenceImpl : Equivalence {
                 return super.rewrite(original)
             }
         }.rewrite(formula)
+        assert(patternFound)
         return rewritten
 
     }
@@ -428,7 +430,7 @@ class DeMorganLawAnd : EquivalenceImpl() {
 }
 
 class DeMorganLawAndReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = DeMorganLawOr()
+    override val toReverse: EquivalenceImpl = DeMorganLawAnd()
 }
 
 /**
@@ -439,8 +441,8 @@ class DistributeOrOverAnd : EquivalenceImpl() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     private val c = AllowAllVars()
-    override val patternFrom: FOLPattern = And(a, Or(b, c))
-    override val patternTo: FOLPattern = Or(And(a, b), And(a, c))
+    override val patternFrom: FOLPattern = Or(a, And(b, c))
+    override val patternTo: FOLPattern = And(Or(a, b), Or(a, c))
 }
 
 class DistributeOrOverAndReverse : ReverseEquivalence() {
@@ -451,8 +453,8 @@ class DistributeAndOverOr : EquivalenceImpl() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     private val c = AllowAllVars()
-    override val patternFrom: FOLPattern = Or(a, And(b, c))
-    override val patternTo: FOLPattern = And(Or(a, b), Or(a, c))
+    override val patternFrom: FOLPattern = And(a, Or(b, c))
+    override val patternTo: FOLPattern = Or(And(a, b), And(a, c))
 }
 
 class DistributeAndOverOrReverse : ReverseEquivalence() {
