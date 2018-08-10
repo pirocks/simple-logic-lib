@@ -230,7 +230,7 @@ class False : FOLFormula() {
 }
 
 open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula() {
-    override fun toPrefixNotation(): String = """(${predicateString()} ${expectedArgs.map { it.name }.reduceRight{s, acc -> s + " " + acc }}"""
+    override fun toPrefixNotation(): String = """(${predicateString()} ${expectedArgs.map { it.name }.foldRight("",{s, acc -> s + " " + acc })}"""
 
     override fun sameAs(other: FOLFormula): Boolean {
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
@@ -378,7 +378,22 @@ data class Exists(override val child: FOLFormula, override val varName: Variable
 //todo maybe make atom class to abstract the redundancy here:
 class EvaluatedAPatternException() : Exception("You tried to evaluate a pattern. Patterns cannot be evaluated by definition.")
 
-sealed class PatternMatchers : FOLFormula()
+sealed class PatternMatchers : FOLFormula(){
+    val uuid = UUIDUtil.generateUUID()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PatternMatchers) return false
+
+        if (uuid != other.uuid) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
+
+}
 
 class AllowAllVars : PatternMatchers(){
     override fun toPrefixNotation(): String = """(Pattern matches anything Pattern#${super.hashCode()})"""
@@ -419,7 +434,7 @@ class AllowAllVars : PatternMatchers(){
 }
 
 class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMatchers() {
-    override fun toPrefixNotation(): String = """(Pattern Allows Vars: ${vars.map { it.name }.reduceRight{s, acc -> s + " " + acc }}"""
+    override fun toPrefixNotation(): String = """(Pattern Allows Vars: ${vars.map { it.name }.foldRight("",{s, acc -> s + " " + acc })}"""
 
 
     override fun toMathML2(): String = """<mrow><mi>PatternAllowsVars_PatternNumber_${(super.hashCode()).toString(36)}</mi><mfenced>${vars.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
@@ -455,7 +470,7 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMatchers() {
 }
 
 class ForbidCertainVars(val vars: Array<VariableName>) : PatternMatchers() {
-    override fun toPrefixNotation(): String = """(Pattern Excludes Vars: ${vars.map { it.name }.reduceRight{s, acc -> s + " " + acc }})"""
+    override fun toPrefixNotation(): String = """(Pattern Excludes Vars: ${vars.map { it.name }.foldRight("",{s, acc -> s + " " + acc })})"""
 
     override fun toMathML2(): String = """<mrow><mi>PatternExcludesVars_PatternNumber_${(super.hashCode()).toString(36)}</mi><mfenced>${vars.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 

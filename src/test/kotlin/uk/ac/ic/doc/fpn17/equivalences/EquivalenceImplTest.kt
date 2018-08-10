@@ -17,10 +17,10 @@ class PropositionalEquivalenceImplTest {
     lateinit var formula3 : FOLFormula
     lateinit var predicate1:PredicateAtom
     lateinit var predicate2:PredicateAtom
-    lateinit var equivalance1: ArbritraryEquivalance
-    lateinit var equivalance2: ArbritraryEquivalance
-    lateinit var equivalance3: ArbritraryEquivalance
-    lateinit var equivalance4: ArbritraryEquivalance
+    lateinit var equivalance1: ArbitraryEquivalence
+    lateinit var equivalance2: ArbitraryEquivalence
+    lateinit var equivalance3: ArbitraryEquivalence
+    lateinit var equivalance4: ArbitraryEquivalence
 
 
     @Before
@@ -34,10 +34,10 @@ class PropositionalEquivalenceImplTest {
         pattern2 = Or(And(True(),AllowAllVars()),AllowAllVars())
         pattern3 = Or(AllowAllVars(),False())
         pattern4 = Implies(AllowAllVars(),AllowAllVars())
-        equivalance1 = ArbritraryEquivalance(pattern1, False())
-        equivalance2 = ArbritraryEquivalance(pattern2, False())
-        equivalance3 = ArbritraryEquivalance(pattern3, False())
-        equivalance4 = ArbritraryEquivalance(pattern4, False())
+        equivalance1 = ArbitraryEquivalence(pattern1, False())
+        equivalance2 = ArbitraryEquivalence(pattern2, False())
+        equivalance3 = ArbitraryEquivalence(pattern3, False())
+        equivalance4 = ArbitraryEquivalence(pattern4, False())
     }
 
     @After
@@ -75,35 +75,35 @@ class MultipleSamePatternsTest{
     val formula3 : FOLFormula = And(And(True(),True()),And(False(),True()))
     val formula4: FOLFormula = And(True(),False())
     lateinit var pattern1 : FOLPattern
-    lateinit var arbritraryEquivalance1: ArbritraryEquivalance
+    lateinit var arbitraryEquivalence1: ArbitraryEquivalence
     @Before
     fun setUp(){
         val patternAtom = AllowAllVars()
         pattern1 = And(patternAtom,patternAtom)
-        arbritraryEquivalance1 = ArbritraryEquivalance(pattern1,pattern1);
+        arbitraryEquivalence1 = ArbitraryEquivalence(pattern1,pattern1);
     }
 
     @Test
     fun testFormula1() {
-        assertEquals(1,arbritraryEquivalance1.matches(formula1));
+        assertEquals(1,arbitraryEquivalence1.matches(formula1));
 
     }
 
     @Test
     fun testFormula2() {
-        assertEquals(3,arbritraryEquivalance1.matches(formula2))
+        assertEquals(3,arbitraryEquivalence1.matches(formula2))
 
     }
 
     @Test
     fun testFormula3() {
-        assertEquals(1,arbritraryEquivalance1.matches(formula3))
+        assertEquals(1,arbitraryEquivalence1.matches(formula3))
 
     }
 
     @Test
     fun testFormula4() {
-        assertEquals(0,arbritraryEquivalance1.matches(formula4))
+        assertEquals(0,arbitraryEquivalence1.matches(formula4))
     }
 }
 
@@ -113,8 +113,8 @@ class FOLEquivalenceTest{
     lateinit var formula2:FOLFormula;
     lateinit var formula3:FOLFormula;
     lateinit var formula4:FOLFormula;
-    lateinit var arbritraryEquivalance1: ArbritraryEquivalance
-    lateinit var arbritraryEquivalance2: ArbritraryEquivalance
+    lateinit var arbitraryEquivalence1: ArbitraryEquivalence
+    lateinit var arbitraryEquivalence2: ArbitraryEquivalence
 
     @Before
     fun setUp() {
@@ -133,13 +133,13 @@ class FOLEquivalenceTest{
 //        val existsVar = VariableName()
 //        val potentiallyBothVars = EquivalencePattern(arrayOf(forAllVar, existsVar))
 //        val pattern = ForAll(Exists(potentiallyBothVars, existsVar), forAllVar)
-//        arbritraryEquivalance2 = ArbritraryEquivalance(pattern, pattern)
+//        arbitraryEquivalence2 = ArbitraryEquivalence(pattern, pattern)
 //    }
 
     private fun setUpPattern1() {
         val multiUseEquivalencePattern = AllowAllVars()
         val pattern1 = ForAll(multiUseEquivalencePattern)
-        arbritraryEquivalance1 = ArbritraryEquivalance(pattern1, pattern1)
+        arbitraryEquivalence1 = ArbitraryEquivalence(pattern1, pattern1)
     }
 
     private fun setUpFormula4() {
@@ -169,25 +169,25 @@ class FOLEquivalenceTest{
 
     @Test
     fun testFormula1() {
-        assertEquals(1,arbritraryEquivalance1.matches(formula1))
-//        assertEquals(1,arbritraryEquivalance2.matches(formula1))
+        assertEquals(1,arbitraryEquivalence1.matches(formula1))
+//        assertEquals(1,arbitraryEquivalence2.matches(formula1))
     }
 
     @Test
     fun testFormula2() {
-        assertEquals(2,arbritraryEquivalance1.matches(formula2))
-//        assertEquals(1,arbritraryEquivalance2.matches(formula2))
+        assertEquals(2,arbitraryEquivalence1.matches(formula2))
+//        assertEquals(1,arbitraryEquivalence2.matches(formula2))
     }
 
     @Test
     fun testFormula3() {
-        assertEquals(4,arbritraryEquivalance1.matches(formula3))
-//        assertEquals(2,arbritraryEquivalance2.matches(formula3))
+        assertEquals(4,arbitraryEquivalence1.matches(formula3))
+//        assertEquals(2,arbitraryEquivalence2.matches(formula3))
     }
 
     @Test
     fun testFormula4() {
-        assertEquals(1,arbritraryEquivalance1.matches(formula4))
-//        assertEquals(1,arbritraryEquivalance2.matches(formula4))
+        assertEquals(1,arbitraryEquivalence1.matches(formula4))
+//        assertEquals(1,arbitraryEquivalence2.matches(formula4))
     }
 }
