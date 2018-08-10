@@ -214,7 +214,7 @@ class False : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf()
 
-    override fun evaluate(ev: EvalContext): Boolean = true
+    override fun evaluate(ev: EvalContext): Boolean = false
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
