@@ -170,3 +170,53 @@ class DistributeAndOverOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val expression: FOLFormula
         get() = And(aPredicate,Or(bPredicate, cPredicate))
 }
+
+private val v = VariableName()
+private val p = PredicateAtom(Predicate({false}), arrayOf(v))
+private val p2 = PredicateAtom(Predicate({false}), arrayOf())
+
+class ForAllAToAReverseEquivalenceTest : ReverseEquivalenceTest(){
+    override val forward: Equivalence
+        get() = ForAllAToA()
+    override val backwards: Equivalence
+        get() = ForAllAToAReverse()
+    override val expression: FOLFormula
+        get() = ForAll(p2,v)
+
+}
+class ExistOverAndReverseEquivalenceTest : ReverseEquivalenceTest(){
+    override val forward: Equivalence
+        get() = ExistOverAnd()
+    override val backwards: Equivalence
+        get() = ExistOverAndReverse()
+    override val expression: FOLFormula
+        get() = Exists(And(Or(p2,True()),p),v)
+
+}
+class ForAllOverOrReverseEquivalenceTest : ReverseEquivalenceTest(){
+    override val forward: Equivalence
+        get() = ForAllOverOr()
+    override val backwards: Equivalence
+        get() = ForAllOverOrReverse()
+    override val expression: FOLFormula
+        get() = ForAll(Or(p2,p),v)
+
+}
+class ForAllOverImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
+    override val forward: Equivalence
+        get() = ForAllOverImplies()
+    override val backwards: Equivalence
+        get() = ForAllOverImpliesReverse()
+    override val expression: FOLFormula
+        get() = ForAll(Implies(p2, p),v)
+
+}
+class ExistsOverImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
+    override val forward: Equivalence
+        get() = ExistsOverImplies()
+    override val backwards: Equivalence
+        get() = ExistsOverImpliesReverse()
+    override val expression: FOLFormula
+        get() = Exists(Implies(p2, p),v)
+
+}

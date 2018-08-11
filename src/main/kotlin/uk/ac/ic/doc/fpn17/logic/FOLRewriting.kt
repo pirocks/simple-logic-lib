@@ -10,10 +10,24 @@ abstract class RewritingVisitor() {
             is Negation -> rewriteNegation(original)
             is BinaryRelation -> rewriteBinaryRelation(original)
             is Quantifier -> rewriteQuantifier(original)
-            is AllowAllVars -> rewriteAllowAllVars(original)
-            is AllowOnlyCertainVars -> TODO()
-            is ForbidCertainVars -> TODO()
+            is PatternMember -> rewritePatternMember(original)
         }
+    }
+
+    open fun rewritePatternMember(original: PatternMember): FOLFormula{
+        return when(original) {
+            is AllowAllVars -> rewriteAllowAllVars(original)
+            is AllowOnlyCertainVars -> rewriteAllowOnlyCertainVars(original)
+            is ForbidCertainVars -> rewriteForbidCertainVars(original)
+        }
+    }
+
+    open fun rewriteForbidCertainVars(original: ForbidCertainVars): FOLFormula {
+        return ForbidCertainVars(original.vars.clone())
+    }
+
+    open fun rewriteAllowOnlyCertainVars(original: AllowOnlyCertainVars): FOLFormula {
+        return AllowOnlyCertainVars(original.vars.clone())
     }
 
     open fun rewriteAllowAllVars(original: AllowAllVars): FOLFormula {
