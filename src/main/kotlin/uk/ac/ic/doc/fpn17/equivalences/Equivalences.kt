@@ -3,12 +3,51 @@ package uk.ac.ic.doc.fpn17.equivalences
 import uk.ac.ic.doc.fpn17.logic.*
 
 
-val availablePropositionalEquivalences = arrayOf(OrAssociativity(), OrAssociativityReverse(), CommutativityOr(), OrIntroductionFalseVariant(), OrIntroductionFalseVariantReverse(), AOrA(), AOrAReverse(), AOrNotA(), AndAssociativity(), AndAssociativityReverse(), CommutativityAnd(), AAndNotA(), AndFalse(), AndTrue(), AndTrueReverse(), AAndA(), AAndAReverse(), CommutativityIFF(), IFFToDoubleImplies(), IFFToDoubleImpliesReverse(), NotIFF(), IFFToDoubleNotIFF(), IFFToDoubleNotIFFReverse(), AImpliesA(), TrueImpliesA(), TrueImpliesAReverse(), AImpliesTrue(), FalseImpliesA(), AImpliesFalse(), AImpliesFalseReverse(), ImpliesAsOr(), ImpliesAsOrReverse(), ModusPonens(), ModusPonensReverse(), DoubleNotElimination(), DoubleNotReverse(), NotFalse(), NotFalseReverse(), NotTrue(), NotTrueReverse(), DeMorganLawOr(), DeMorganLawOrReverse(), DeMorganLawAnd(), DeMorganLawAndReverse(), DistributeOrOverAnd(), DistributeOrOverAndReverse(), DistributeAndOverOr(), DistributeAndOverOrReverse())
+val availablePropositionalEquivalences = arrayOf(
+        OrAssociativityReverse(), CommutativityOr(),
+        OrIntroductionFalseVariant(), OrIntroductionFalseVariantReverse(),
+        AOrA(), AOrAReverse(),
+        AOrNotA(), AndAssociativity(),
+        AndAssociativityReverse(), CommutativityAnd(),
+        AAndNotA(), AndFalse(),
+        AndTrue(), AndTrueReverse(),
+        AAndA(), AAndAReverse(),
+        CommutativityIFF(), IFFToDoubleImplies(),
+        IFFToDoubleImpliesReverse(), NotIFF(),
+        IFFToDoubleNotIFF(), IFFToDoubleNotIFFReverse(),
+        AImpliesA(), TrueImpliesA(),
+        TrueImpliesAReverse(), AImpliesTrue(),
+        FalseImpliesA(), AImpliesFalse(),
+        AImpliesFalseReverse(), ImpliesAsOr(),
+        ImpliesAsOrReverse(), ModusPonens(),
+        ModusPonensReverse(), DoubleNotElimination(),
+        DoubleNotReverse(), NotFalse(),
+        NotFalseReverse(), NotTrue(),
+        NotTrueReverse(), DeMorganLawOr(),
+        DeMorganLawOrReverse(), DeMorganLawAnd(),
+        DeMorganLawAndReverse(), DistributeOrOverAnd(),
+        DistributeOrOverAndReverse(), DistributeAndOverOr(),
+        DistributeAndOverOrReverse(), OrAssociativity())
+val availableFirstOrderEquivalences = arrayOf(
+        SwapForAll(), SwapExists(),
+        PushNegationThroughForAll(), PushNegationThroughForAllReverse(),
+        PushNegationThroughExist(), PushNegationThroughExistReverse(),
+        DistributeForAllOverAnd(), DistributeForAllOverAndReverse(),
+        DistributeExistOverOr(), DistributeExistOverOrReverse(),
+        ExistAToA(), ExistToAReverse(),
+        ForAllAToA(), ForAllAToAReverse(),
+        ExistOverAnd(), ExistOverAndReverse(),
+        ForAllOverOr(), ForAllOverOrReverse(),
+        ForAllOverImplies(), ForAllOverImpliesReverse(),
+        ExistsOverImplies(), ExistsOverImpliesReverse()
+)
+val availableEquivalences = availableFirstOrderEquivalences + availablePropositionalEquivalences
 
 interface PatternBasedRewriter {
     fun matches(formula: FOLFormula): Int
 
-    fun apply(formula: FOLFormula, targetIndex: Int): FOLFormula
+    fun apply(formula: FOLFormula,
+              targetIndex: Int): FOLFormula
 }
 
 class MatchSubstitutions {
