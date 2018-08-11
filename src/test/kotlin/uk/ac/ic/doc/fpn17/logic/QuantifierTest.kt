@@ -55,9 +55,9 @@ class QuantifierTest {
         assertTrue(simpleExpr1.sameAs(simpleExpr1Var2))
         assertTrue(simpleExpr1.sameAs(simpleExpr1Var1))
         assertTrue(simpleExpr1Var2.sameAs(simpleExpr1Var1))
-        assertFalse(simpleExpr1.equals(simpleExpr1Var2))
-        assertFalse(simpleExpr1.equals(simpleExpr1Var1))
-        assertFalse(simpleExpr1Var2.equals(simpleExpr1Var1))
+        assertTrue(simpleExpr1.equals(simpleExpr1Var2))
+        assertTrue(simpleExpr1.equals(simpleExpr1Var1))
+        assertTrue(simpleExpr1Var2.equals(simpleExpr1Var1))
     }
 
     @Test
@@ -65,8 +65,8 @@ class QuantifierTest {
         assertTrue(multiQuantifier1Var3Var4.sameAs(multiQuantifier1Var3Var4))
         assertTrue(multiQuantifier1Var3Var4.sameAs(multiQuantifier1Var1Var2))
         assertTrue(multiQuantifier1Var1Var2.sameAs(multiQuantifier1Var3Var4))
-        assertFalse(multiQuantifier1Var3Var4.equals(multiQuantifier1Var1Var2))
-        assertFalse(multiQuantifier1Var1Var2.equals(multiQuantifier1Var3Var4))
+        assertTrue(multiQuantifier1Var3Var4.equals(multiQuantifier1Var1Var2))
+        assertTrue(multiQuantifier1Var1Var2.equals(multiQuantifier1Var3Var4))
     }
 
 }

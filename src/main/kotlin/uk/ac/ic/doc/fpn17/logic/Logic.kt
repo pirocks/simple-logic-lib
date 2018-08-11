@@ -101,15 +101,21 @@ class EqualityContext(
         //to: our vars
         val uuidVariableMappings: Map<VariableName, VariableName> = mapOf())
 
+class HashContext(
+        val variableNumberMappings: Map<VariableName, Int> = mutableMapOf()
+)
+
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
 
 
 sealed class FOLFormula : Formula,FOLPattern {
 
+    @Deprecated("Equals should now be used instead of sameAs", ReplaceWith(".equals()" ))
     open fun sameAs(other: FOLFormula): Boolean {
         return sameAsImpl(other, EqualityContext())
     }
 
+    @Deprecated("Equals should now be used instead of sameAs")
     open fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
         //by default if subformulas are equivalent then these are equivalent.
         if (javaClass != other.javaClass || subFormulas.size != other.subFormulas.size) {
@@ -124,9 +130,18 @@ sealed class FOLFormula : Formula,FOLPattern {
     }
 
     abstract fun evaluate(ev: EvalContext): Boolean
+
     abstract fun toMathML2(): String
     fun toHtml(): String = ("<math> <mrow>" + toMathML2() + "</mrow> </math>").replace("\\s(?!separators)".toRegex(), "").trim().trimIndent()
     abstract fun toPrefixNotation(): String
+    override fun hashCode(): Int = hashCodeImpl()
+    abstract fun hashCodeImpl(hashContext: HashContext = HashContext()) : Int
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null ) return false
+        if(other.javaClass != this.javaClass) return false
+        return this.sameAs(other as FOLFormula)
+    }
 
 }
 
@@ -144,9 +159,23 @@ sealed class BinaryRelation(open val left: FOLFormula, open val right: FOLFormul
         </mfenced>
         </mrow>
     """
+    abstract val operatorHashCode: Int;
+    override fun hashCodeImpl(hashContext: HashContext): Int {
+        var hash = operatorHashCode
+        hash = 31*hash + left.hashCodeImpl(hashContext)
+        hash = 31*hash + right.hashCodeImpl(hashContext)
+        return hash
+    }
 }
 
 sealed class Quantifier(open val child: FOLFormula, open val varName: VariableName = VariableName()) : FOLFormula() {
+    abstract val operatorHashCode: Int;
+    override fun hashCodeImpl(hashContext: HashContext): Int {
+        var hash = operatorHashCode
+        hash = 31*hash + varName.hashCode()
+        hash = 31*hash + child.hashCodeImpl(hashContext)
+        return hash
+    }
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
     abstract val quantifierSymbol: String
@@ -186,6 +215,8 @@ sealed class Quantifier(open val child: FOLFormula, open val varName: VariableNa
 }
 
 class True : FOLFormula() {
+    override fun hashCodeImpl(hashContext: HashContext): Int = 31// can be any arbitrary, reasonably sized prime
+
     override fun toPrefixNotation(): String = "T"
 
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean = other is True;
@@ -209,6 +240,8 @@ class True : FOLFormula() {
 }
 
 class False : FOLFormula() {
+    override fun hashCodeImpl(hashContext: HashContext): Int = 43
+
     override fun toPrefixNotation(): String = "F"
 
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean = other is False;
@@ -232,6 +265,14 @@ class False : FOLFormula() {
 }
 
 open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula() {
+    override fun hashCodeImpl(hashContext: HashContext): Int {
+        var hash = predicate.uuid.hashCode()
+        expectedArgs.forEach {
+            hash = 31*hash + hashContext.variableNumberMappings[it]!!
+        }
+        return hash
+    }
+
     override fun toPrefixNotation(): String = """(${predicateString()} ${expectedArgs.map { it.name }.foldRight("",{s, acc -> s + " " + acc })}"""
 
     override fun sameAs(other: FOLFormula): Boolean {
@@ -277,25 +318,12 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
 
     override fun toMathML2(): String = """<mrow><mi>${predicateString()}</mi><mfenced>${expectedArgs.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PredicateAtom) return false
-
-        if (predicate != other.predicate) return false
-        if (!Arrays.equals(expectedArgs, other.expectedArgs)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = predicate.hashCode()
-        result = 31 * result + Arrays.hashCode(expectedArgs)
-        return result
-    }
-
 }
 
-data class And(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+class And(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+    override val operatorHashCode: Int
+        get() = 31
+
     override fun toPrefixNotation(): String = """(and ${left.toPrefixNotation()} ${right.toPrefixNotation()})"""
 
     override fun getOperatorAsMathML(): String = "&and;";
@@ -310,13 +338,18 @@ data class And(override val left: FOLFormula, override val right: FOLFormula) : 
     override fun evaluate(ev: EvalContext): Boolean = left.evaluate(ev) && right.evaluate(ev)
 }
 
-data class Or(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+class Or(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+    override val operatorHashCode: Int
+        get() = 41
+
     override fun toPrefixNotation(): String = """(or ${left.toPrefixNotation()} ${right.toPrefixNotation()})"""
     override fun getOperatorAsMathML(): String = "&or;"
     override fun evaluate(ev: EvalContext): Boolean = left.evaluate(ev) || right.evaluate(ev)
 }
 
-data class Negation(val child: FOLFormula) : FOLFormula() {
+class Negation(val child: FOLFormula) : FOLFormula() {
+    override fun hashCodeImpl(hashContext: HashContext): Int = 107*31 + child.hashCodeImpl(hashContext)
+
     override fun toPrefixNotation(): String = """(neg ${child.toPrefixNotation()})"""
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(child)
@@ -332,19 +365,28 @@ data class Negation(val child: FOLFormula) : FOLFormula() {
 typealias Not = Negation
 
 
-data class Implies(val given: FOLFormula, val result: FOLFormula) : BinaryRelation(given, result) {
+class Implies(val given: FOLFormula, val result: FOLFormula) : BinaryRelation(given, result) {
+    override val operatorHashCode: Int
+        get() = 43
+
     override fun toPrefixNotation(): String = """(implies ${given.toPrefixNotation()} ${result.toPrefixNotation()})"""
     override fun getOperatorAsMathML(): String = "&rArr;"
     override fun evaluate(ev: EvalContext): Boolean = !given.evaluate(ev) || result.evaluate(ev)
 }
 
-data class IFF(val one: FOLFormula, val two: FOLFormula) : BinaryRelation(one, two) {
+class IFF(val one: FOLFormula, val two: FOLFormula) : BinaryRelation(one, two) {
+    override val operatorHashCode: Int
+        get() = 101
+
     override fun toPrefixNotation(): String = """(iff ${one.toPrefixNotation()} ${two.toPrefixNotation()})"""
     override fun getOperatorAsMathML(): String = "&hArr;"
     override fun evaluate(ev: EvalContext): Boolean = one.evaluate(ev) == two.evaluate(ev)
 }
 
-data class ForAll(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+class ForAll(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+    override val operatorHashCode: Int
+        get() = 71*107
+
     override fun toPrefixNotation(): String = """(forall ${child.toPrefixNotation()})"""
 
 
@@ -360,7 +402,10 @@ data class ForAll(override val child: FOLFormula, override val varName: Variable
     }
 }
 
-data class Exists(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+class Exists(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+    override val operatorHashCode: Int
+        get() = 73*103
+
     override fun toPrefixNotation(): String = """(exists ${child.toPrefixNotation()})"""
 
     override val quantifierSymbol: String
@@ -415,6 +460,8 @@ sealed class PatternMember : FOLFormula(){
 
 
 class AllowAllVars : PatternMember(){
+    override fun hashCodeImpl(hashContext: HashContext): Int = 103*101
+
     override fun toPrefixNotation(): String = """(Pattern matches anything Pattern#${super.hashCode()})"""
 
 
@@ -442,6 +489,17 @@ class AllowAllVars : PatternMember(){
 }
 
 class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMember() {
+    /**
+     * todo duplication with predicate atom
+     */
+    override fun hashCodeImpl(hashContext: HashContext): Int {
+        var hash = super.hashCode()
+        vars.forEach {
+            hash = 31*hash + hashContext.variableNumberMappings[it]!!
+        }
+        return hash
+    }
+
     override fun toPrefixNotation(): String = """(Pattern Allows Vars: ${vars.map { it.name }.foldRight("",{s, acc -> s + " " + acc })}"""
 
 
@@ -470,6 +528,14 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMember() {
 }
 
 class ForbidCertainVars(val vars: Array<VariableName>) : PatternMember() {
+    override fun hashCodeImpl(hashContext: HashContext): Int {
+        var hash = super.hashCode()
+        vars.forEach {
+            hash = 31*hash + hashContext.variableNumberMappings[it]!!
+        }
+        return hash
+    }
+
     override fun toPrefixNotation(): String = """(Pattern Excludes Vars: ${vars.map { it.name }.foldRight("",{s, acc -> s + " " + acc })})"""
 
     override fun toMathML2(): String = """<mrow><mi>PatternExcludesVars_PatternNumber_${(super.hashCode()).toString(36)}</mi><mfenced>${vars.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
