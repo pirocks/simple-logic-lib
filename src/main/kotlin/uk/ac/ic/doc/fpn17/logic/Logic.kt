@@ -77,7 +77,7 @@ class Predicate {
         @JvmStatic
         private var predicateCount = 0;
 
-        public fun getAndIncrementPredicateCount(): Int {
+        fun getAndIncrementPredicateCount(): Int {
             predicateCount++;
             return predicateCount - 1;
         }
@@ -102,6 +102,8 @@ class EqualityContext(
         val uuidVariableMappings: Map<VariableName, VariableName> = mapOf())
 
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
+
+
 sealed class FOLFormula : Formula,FOLPattern {
 
     open fun sameAs(other: FOLFormula): Boolean {
@@ -378,11 +380,11 @@ data class Exists(override val child: FOLFormula, override val varName: Variable
 //todo maybe make atom class to abstract the redundancy here:
 class EvaluatedAPatternException() : Exception("You tried to evaluate a pattern. Patterns cannot be evaluated by definition.")
 
-sealed class PatternMatchers : FOLFormula(){
+sealed class PatternMember : FOLFormula(){
     val uuid = UUIDUtil.generateUUID()
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is PatternMatchers) return false
+        if (other !is PatternMember) return false
 
         if (uuid != other.uuid) return false
 
@@ -393,15 +395,7 @@ sealed class PatternMatchers : FOLFormula(){
         return uuid.hashCode()
     }
 
-}
-
-class AllowAllVars : PatternMatchers(){
-    override fun toPrefixNotation(): String = """(Pattern matches anything Pattern#${super.hashCode()})"""
-
-
-    override fun toMathML2(): String = """<mrow><mi>PatternMatchesAnything_PatternNumber_${(super.hashCode()).toString(36)}</mi></mrow>"""
-
-    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
+    fun defaultMatchSubstitution(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
         val actualFormula = formula
         //todo duplication with AllowOnlyCertainVars and ForbidCertainVars
         if (this in matchSubstitutions.matchedPatterns) {
@@ -416,6 +410,20 @@ class AllowAllVars : PatternMatchers(){
             return true
         }
     }
+}
+
+
+
+class AllowAllVars : PatternMember(){
+    override fun toPrefixNotation(): String = """(Pattern matches anything Pattern#${super.hashCode()})"""
+
+
+    override fun toMathML2(): String = """<mrow><mi>PatternMatchesAnything_PatternNumber_${(super.hashCode()).toString(36)}</mi></mrow>"""
+
+    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
+        return defaultMatchSubstitution(formula, matchSubstitutions)
+    }
+
 
     override fun sameAs(other: FOLFormula): Boolean {
         TODO("Need to map patterns check sameness")
@@ -433,25 +441,17 @@ class AllowAllVars : PatternMatchers(){
         get() = arrayOf()
 }
 
-class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMatchers() {
+class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMember() {
     override fun toPrefixNotation(): String = """(Pattern Allows Vars: ${vars.map { it.name }.foldRight("",{s, acc -> s + " " + acc })}"""
 
 
     override fun toMathML2(): String = """<mrow><mi>PatternAllowsVars_PatternNumber_${(super.hashCode()).toString(36)}</mi><mfenced>${vars.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 
     override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
-        val actualFormula = formula
         if(containsVarsOtherThan(formula,vars)){
             return false
         }
-        if( this in matchSubstitutions.matchedPatterns){
-            val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
-            //todo this could still encounter vars from higher up the rewriting visitor
-            return expectedFormula.sameAsImpl(actualFormula,EqualityContext(matchSubstitutions.variableSubstitutions))
-        }else{
-            matchSubstitutions.matchedPatterns[this] = formula;
-            return true
-        }
+        return defaultMatchSubstitution(formula, matchSubstitutions)
     }
 
     override fun sameAs(other: FOLFormula): Boolean {
@@ -469,24 +469,16 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMatchers() {
         get() = arrayOf()
 }
 
-class ForbidCertainVars(val vars: Array<VariableName>) : PatternMatchers() {
+class ForbidCertainVars(val vars: Array<VariableName>) : PatternMember() {
     override fun toPrefixNotation(): String = """(Pattern Excludes Vars: ${vars.map { it.name }.foldRight("",{s, acc -> s + " " + acc })})"""
 
     override fun toMathML2(): String = """<mrow><mi>PatternExcludesVars_PatternNumber_${(super.hashCode()).toString(36)}</mi><mfenced>${vars.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 
     override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
-        val actualFormula = formula
         if(vars.any{ containsVar(formula,it)}){
             return false
         }
-        if( this in matchSubstitutions.matchedPatterns){
-            val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
-            //todo this could still encounter vars from higher up the rewriting visitor
-            return expectedFormula.sameAsImpl(actualFormula,EqualityContext(matchSubstitutions.variableSubstitutions))
-        }else{
-            matchSubstitutions.matchedPatterns[this] = formula;
-            return true
-        }
+        return defaultMatchSubstitution(formula, matchSubstitutions)
     }
 
     override fun sameAs(other: FOLFormula): Boolean {

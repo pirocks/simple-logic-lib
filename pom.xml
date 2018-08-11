@@ -6,7 +6,7 @@
 
     <groupId>uk.ac.ic.doc.fpn17</groupId>
     <artifactId>nd-thing</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
 
     <properties>
         <kotlin.version>1.2.60</kotlin.version>
@@ -28,8 +28,6 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
         </dependency>
-
-
     </dependencies>
 
     <build>

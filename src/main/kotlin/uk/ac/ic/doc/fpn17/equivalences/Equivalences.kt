@@ -5,8 +5,6 @@ import uk.ac.ic.doc.fpn17.logic.*
 
 val availableEquivalences = arrayOf(OrAssociativity(), OrAssociativityReverse(), CommutativityOr(), OrIntroductionFalseVariant(), OrIntroductionFalseVariantReverse(), AOrA(), AOrAReverse(), AOrNotA(), AndAssociativity(), AndAssociativityReverse(), CommutativityAnd(), AAndNotA(), AndFalse(), AndTrue(), AndTrueReverse(), AAndA(), AAndAReverse(), CommutativityIFF(), IFFToDoubleImplies(), IFFToDoubleImpliesReverse(), NotIFF(), IFFToDoubleNotIFF(), IFFToDoubleNotIFFReverse(), AImpliesA(), TrueImpliesA(), TrueImpliesAReverse(), AImpliesTrue(), FalseImpliesA(), AImpliesFalse(), AImpliesFalseReverse(), ImpliesAsOr(), ImpliesAsOrReverse(), ModusPonens(), ModusPonensReverse(), DoubleNotElimination(), DoubleNotReverse(), NotFalse(), NotFalseReverse(), NotTrue(), NotTrueReverse(), DeMorganLawOr(), DeMorganLawOrReverse(), DeMorganLawAnd(), DeMorganLawAndReverse(), DistributeOrOverAnd(), DistributeOrOverAndReverse(), DistributeAndOverOr(), DistributeAndOverOrReverse())
 
-//todo equivalence soundness tests. Also they currently are not sound
-
 interface Equivalence {
     fun matches(formula: FOLFormula): Int
 
@@ -14,7 +12,7 @@ interface Equivalence {
 }
 
 class MatchSubstitutions {
-    val matchedPatterns: MutableMap<PatternMatchers, FOLFormula> = mutableMapOf()
+    val matchedPatterns: MutableMap<PatternMember, FOLFormula> = mutableMapOf()
     // from formula variable names to pattern variable names
     val variableSubstitutions: MutableMap<VariableName, VariableName> = mutableMapOf()
 }
