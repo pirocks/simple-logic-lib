@@ -389,7 +389,7 @@ class ForAll(override val child: FOLFormula, override val varName: VariableName 
     override val operatorHashCode: Int
         get() = 71*107
 
-    override fun toPrefixNotation(): String = """(forall ${child.toPrefixNotation()})"""
+    override fun toPrefixNotation(): String = """(forall ${varName.name}  ${child.toPrefixNotation()})"""
 
 
     override val quantifierSymbol: String
@@ -408,7 +408,7 @@ class Exists(override val child: FOLFormula, override val varName: VariableName 
     override val operatorHashCode: Int
         get() = 73*103
 
-    override fun toPrefixNotation(): String = """(exists ${child.toPrefixNotation()})"""
+    override fun toPrefixNotation(): String = """(exists ${varName.name} ${child.toPrefixNotation()})"""
 
     override val quantifierSymbol: String
         get() = "&exist;"
