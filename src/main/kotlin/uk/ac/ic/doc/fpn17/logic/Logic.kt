@@ -5,7 +5,9 @@ import uk.ac.ic.doc.fpn17.util.UUIDUtil
 import java.io.Serializable
 import java.util.*
 
-
+/**
+ * todo, maybe remove name index. seems unnecessarily complex
+ */
 val nameIndex: MutableMap<UUID, String> = mutableMapOf()
 
 

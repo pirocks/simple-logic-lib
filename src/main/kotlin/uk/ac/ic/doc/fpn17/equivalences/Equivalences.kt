@@ -428,16 +428,16 @@ class DistributeAndOverOrReverse : ReverseEquivalence() {
 
 class SwapForAll : Equivalence(){
     private val a = AllowAllVars()
-    val v1 = VariableName()
-    val v2 = VariableName()
+    private val v1 = VariableName()
+    private val v2 = VariableName()
     override val patternFrom: FOLPattern = ForAll(ForAll(a, v1), v2)
     override val patternTo: FOLPattern = ForAll(ForAll(a, v2), v1)
 }
 
 class SwapExists : Equivalence(){
     private val a = AllowAllVars()
-    val v1 = VariableName()
-    val v2 = VariableName()
+    private val v1 = VariableName()
+    private val v2 = VariableName()
     override val patternFrom: FOLPattern = ForAll(ForAll(a, v1), v2)
     override val patternTo: FOLPattern = ForAll(ForAll(a, v2), v1)
 }
@@ -455,7 +455,7 @@ class PushNegationThroughForAllReverse : ReverseEquivalence(){
 
 class PushNegationThroughExist : Equivalence(){
     private val a = AllowAllVars()
-    val v1 = VariableName()
+    private val v1 = VariableName()
     override val patternFrom: FOLPattern = Not(Exists(a,v1))
     override val patternTo: FOLPattern = ForAll(Not(a),v1)
 }
@@ -465,5 +465,95 @@ class PushNegationThroughExistReverse : ReverseEquivalence(){
     override val toReverse: Equivalence = PushNegationThroughExist()
 }
 
+class DistributeForAllOverAnd : Equivalence(){
+    private val a = AllowAllVars()
+    private val b = AllowAllVars()
+    private val v1 = VariableName()
+    override val patternFrom: FOLPattern = ForAll(And(a,b),v1)
+    override val patternTo: FOLPattern = And(ForAll(a,v1),ForAll(b,v1))
+}
 
+class DistributeForAllOverAndReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = DistributeForAllOverAnd()
+}
+
+class DistributeExistOverOr : Equivalence(){
+    private val a = AllowAllVars()
+    private val b = AllowAllVars()
+    private val v1 = VariableName()
+    override val patternFrom: FOLPattern = Exists(Or(a,b),v1)
+    override val patternTo: FOLPattern = Or(Exists(a,v1),Exists(b,v1))
+}
+
+class DistributeExistOverOrReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = DistributeExistOverOr()
+}
+
+/**
+ * --------------------PREDICATE EQUIVALENCES SPECIAL CASES------------------------
+ */
+
+class ExistAToA: Equivalence(){
+    private val v = VariableName()
+    private val a = ForbidCertainVars(arrayOf(v))
+    override val patternFrom: FOLPattern = Exists(a,v)
+    override val patternTo: FOLPattern = a
+    //todo what about the reverse of this. Isn't it needed for completeness?
+}
+
+class ForAllAToA: Equivalence(){
+    private val v = VariableName()
+    private val a = ForbidCertainVars(arrayOf(v))
+    override val patternFrom: FOLPattern = ForAll(a,v)
+    override val patternTo: FOLPattern = a
+    //todo what about the reverse of this. Isn't it needed for completeness?
+}
+
+class ExistOverAnd : Equivalence(){
+    private val v = VariableName()
+    private val a = ForbidCertainVars(arrayOf(v))
+    private val b = AllowAllVars()
+    override val patternFrom: FOLPattern = Exists(And(a,b),v)
+    override val patternTo: FOLPattern = And(a,Exists(b,v))
+}
+
+class ExistOverAndReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = ExistOverAnd()
+}
+
+class ForAllOverOr : Equivalence(){
+    private val v = VariableName()
+    private val a = ForbidCertainVars(arrayOf(v))
+    private val b = AllowAllVars()
+    override val patternFrom: FOLPattern = ForAll(Or(a,b),v)
+    override val patternTo: FOLPattern = Or(a,ForAll(b,v))
+}
+
+class ForAllOverOrReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = ForAllOverOr()
+}
+
+class ForAllOverImplies : Equivalence(){
+    private val v = VariableName()
+    private val a = ForbidCertainVars(arrayOf(v))
+    private val b = AllowAllVars()
+    override val patternFrom: FOLPattern = ForAll(Implies(a,b),v)
+    override val patternTo: FOLPattern = Implies(a,ForAll(b,v))
+}
+
+class ForAllOverImpliesReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = ForAllOverImplies()
+}
+
+class ExistsOverImplies : Equivalence(){
+    private val v = VariableName()
+    private val a = ForbidCertainVars(arrayOf(v))
+    private val b = AllowAllVars()
+    override val patternFrom: FOLPattern = Exists(Implies(a,b),v)
+    override val patternTo: FOLPattern = Implies(a,Exists(b,v))
+}
+
+class ExistsOverImpliesReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = ExistsOverImplies()
+}
 
