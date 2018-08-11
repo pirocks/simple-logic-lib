@@ -34,7 +34,7 @@ interface FOLPattern: Formula{
 
 data class SignatureElement(val uuid: UUID)
 data class VariableValue(val variableName: VariableName, val value: SignatureElement)
-class VariableName {
+class VariableName : Serializable {
     companion object {
 
         @JvmStatic
