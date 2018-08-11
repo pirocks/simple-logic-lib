@@ -13,7 +13,7 @@ private fun <E> List<E>.random(random: java.util.Random): E? = if (size > 0) get
 
 
 private fun doWalk(start: FOLFormula, lengthWalk: Int = 2048, random: Random = Random()): Array<FOLFormula> {
-    fun selectMatchingEquivalence(formula: FOLFormula): Equivalence {
+    fun selectMatchingEquivalence(formula: FOLFormula): PatternBasedRewriter {
         val candidate = availableEquivalences.toList().random(random)!!
         if (candidate.matches(formula) > 0) {
             return candidate;
@@ -21,8 +21,8 @@ private fun doWalk(start: FOLFormula, lengthWalk: Int = 2048, random: Random = R
         return selectMatchingEquivalence(formula);
     }
 
-    fun selectMatchToOperateOn(formula: FOLFormula, equivalence: Equivalence): Int {
-        val matches = equivalence.matches(formula);
+    fun selectMatchToOperateOn(formula: FOLFormula, patternBasedRewriter: PatternBasedRewriter): Int {
+        val matches = patternBasedRewriter.matches(formula);
         return random.ints(0, matches).findFirst().asInt;
     }
 

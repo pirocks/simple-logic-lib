@@ -5,7 +5,7 @@ import uk.ac.ic.doc.fpn17.logic.*
 
 val availableEquivalences = arrayOf(OrAssociativity(), OrAssociativityReverse(), CommutativityOr(), OrIntroductionFalseVariant(), OrIntroductionFalseVariantReverse(), AOrA(), AOrAReverse(), AOrNotA(), AndAssociativity(), AndAssociativityReverse(), CommutativityAnd(), AAndNotA(), AndFalse(), AndTrue(), AndTrueReverse(), AAndA(), AAndAReverse(), CommutativityIFF(), IFFToDoubleImplies(), IFFToDoubleImpliesReverse(), NotIFF(), IFFToDoubleNotIFF(), IFFToDoubleNotIFFReverse(), AImpliesA(), TrueImpliesA(), TrueImpliesAReverse(), AImpliesTrue(), FalseImpliesA(), AImpliesFalse(), AImpliesFalseReverse(), ImpliesAsOr(), ImpliesAsOrReverse(), ModusPonens(), ModusPonensReverse(), DoubleNotElimination(), DoubleNotReverse(), NotFalse(), NotFalseReverse(), NotTrue(), NotTrueReverse(), DeMorganLawOr(), DeMorganLawOrReverse(), DeMorganLawAnd(), DeMorganLawAndReverse(), DistributeOrOverAnd(), DistributeOrOverAndReverse(), DistributeAndOverOr(), DistributeAndOverOrReverse())
 
-interface Equivalence {
+interface PatternBasedRewriter {
     fun matches(formula: FOLFormula): Int
 
     fun apply(formula: FOLFormula, targetIndex: Int): FOLFormula
@@ -17,44 +17,10 @@ class MatchSubstitutions {
     val variableSubstitutions: MutableMap<VariableName, VariableName> = mutableMapOf()
 }
 
-//class EquivalencePattern(val allowedVars: Array<VariableName>,val allowsEveryVar:Boolean = false) : PredicateAtom(Predicate({throw IllegalStateException("Tried to evaluate an equivalence pattern") }),allowedVars){
-//    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
-//        val actualFormula = formula
-//        if (allowsEveryVar) {
-//            if (this in matchSubstitutions.matchedPatterns) {
-//                //we already found this pattern elsewhere
-//                //need to check if same as elsewhere
-//                val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
-//                //todo check that the order of parameters does not need reversing
-//                //todo this could still encounter vars from higher up the rewriting visitor
-//                return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
-//            } else {
-//                //todo check variables
-//                matchSubstitutions.matchedPatterns[this] = formula;
-//                return true
-//            }
-//        } else {
-//            if(this in matchSubstitutions.matchedPatterns){
-//                val expectedFormula = matchSubstitutions.matchedPatterns[this]!!
-//                return expectedFormula.sameAsImpl(actualFormula, EqualityContext(matchSubstitutions.variableSubstitutions))
-//            }else{
-//                if(containsVarsOtherThan(formula,allowedVars.map {
-//                            matchSubstitutions.variableSubstitutions[it]!!
-//                        }.toTypedArray()))
-//                    return false
-//                matchSubstitutions.matchedPatterns[this] = formula;
-//                return true
-//            }
-//        }
-//    }
-//}
-
-
-//there will be one equivalence for left direction, and one for right
 /**
- * Patterns should not include free variables. Use equivalence pattern instead.
+ * Patterns should not include free variables
  */
-sealed class EquivalenceImpl : Equivalence {
+sealed class Equivalence : PatternBasedRewriter {
     abstract val patternFrom: FOLPattern;
     abstract val patternTo: FOLPattern;
 
@@ -115,7 +81,7 @@ sealed class EquivalenceImpl : Equivalence {
 }
 
 
-class ArbitraryEquivalence(override val patternFrom: FOLPattern, override val patternTo: FOLPattern) : EquivalenceImpl()
+class ArbitraryPatternBasedRewriter(override val patternFrom: FOLPattern, override val patternTo: FOLPattern) : Equivalence()
 /*
 equivalences to implement:
 and:
@@ -134,14 +100,14 @@ iff:
 /**
  * -----------------------------BEGIN OR RELATED EQUIVALENCES----------------------
  */
-abstract class ReverseEquivalence : EquivalenceImpl() {
-    abstract val toReverse: EquivalenceImpl;
+abstract class ReverseEquivalence : Equivalence() {
+    abstract val toReverse: Equivalence;
 
     override val patternFrom: FOLPattern get() = toReverse.patternTo
     override val patternTo: FOLPattern get() = toReverse.patternFrom
 }
 
-class OrAssociativity : EquivalenceImpl() {
+class OrAssociativity : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     private val c = AllowAllVars()
@@ -150,10 +116,10 @@ class OrAssociativity : EquivalenceImpl() {
 }
 
 class OrAssociativityReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = OrAssociativity()
+    override val toReverse: Equivalence = OrAssociativity()
 }
 
-class CommutativityOr : EquivalenceImpl() {
+class CommutativityOr : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
 
@@ -161,7 +127,7 @@ class CommutativityOr : EquivalenceImpl() {
     override val patternTo: FOLPattern = Or(b, a)
 }
 
-class OrIntroductionFalseVariant : EquivalenceImpl() {
+class OrIntroductionFalseVariant : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = a
     override val patternTo: FOLPattern = Or(a, False())
@@ -169,23 +135,23 @@ class OrIntroductionFalseVariant : EquivalenceImpl() {
 }
 
 class OrIntroductionFalseVariantReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = OrIntroductionFalseVariant()
+    override val toReverse: Equivalence = OrIntroductionFalseVariant()
 
 }
 
 
-class AOrA : EquivalenceImpl() {
+class AOrA : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Or(a, a)
     override val patternTo: FOLPattern = a
 }
 
 class AOrAReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = AOrA()
+    override val toReverse: Equivalence = AOrA()
 
 }
 
-class AOrNotA : EquivalenceImpl() {
+class AOrNotA : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Or(a, Not(a))
     override val patternTo: FOLPattern = True()
@@ -196,7 +162,7 @@ class AOrNotA : EquivalenceImpl() {
  * -----------------------------BEGIN AND RELATED EQUIVALENCES---------------------
  */
 
-class AndAssociativity : EquivalenceImpl() {
+class AndAssociativity : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     private val c = AllowAllVars()
@@ -206,10 +172,10 @@ class AndAssociativity : EquivalenceImpl() {
 }
 
 class AndAssociativityReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = AndAssociativity()
+    override val toReverse: Equivalence = AndAssociativity()
 }
 
-class CommutativityAnd : EquivalenceImpl() {
+class CommutativityAnd : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
 
@@ -220,7 +186,7 @@ class CommutativityAnd : EquivalenceImpl() {
 /**
  * NOTE: There is no and contradiction reverse, because this would have infinite number of possible outputs.
  */
-class AAndNotA : EquivalenceImpl() {
+class AAndNotA : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = And(a, Negation(a))
     override val patternTo: FOLPattern = False()
@@ -230,37 +196,37 @@ class AAndNotA : EquivalenceImpl() {
 /**
  * NOTE: There is no and false reverse, because this would have infinite number of possible outputs.
  */
-class AndFalse : EquivalenceImpl() {
+class AndFalse : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = And(a, False())
     override val patternTo: FOLPattern = False()
 }
 
-class AndTrue : EquivalenceImpl() {
+class AndTrue : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = And(a, True())
     override val patternTo: FOLPattern = a
 }
 
 class AndTrueReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = AndTrue()
+    override val toReverse: Equivalence = AndTrue()
 }
 
-class AAndA : EquivalenceImpl() {
+class AAndA : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = And(a, a)
     override val patternTo: FOLPattern = a
 }
 
 class AAndAReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = AAndA()
+    override val toReverse: Equivalence = AAndA()
 }
 
 /**
  * -----------------------------BEGIN IFF RELATED EQUIVALENCES---------------------
  */
 
-class CommutativityIFF : EquivalenceImpl() {
+class CommutativityIFF : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
 
@@ -268,7 +234,7 @@ class CommutativityIFF : EquivalenceImpl() {
     override val patternTo: FOLPattern = IFF(b, a)
 }
 
-class IFFToDoubleImplies : EquivalenceImpl() {
+class IFFToDoubleImplies : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
 
@@ -277,18 +243,18 @@ class IFFToDoubleImplies : EquivalenceImpl() {
 }
 
 class IFFToDoubleImpliesReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = IFFToDoubleImplies()
+    override val toReverse: Equivalence = IFFToDoubleImplies()
 
 }
 
-class NotIFF : EquivalenceImpl() {
+class NotIFF : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     override val patternFrom: FOLPattern = Not(IFF(a, b))
     override val patternTo: FOLPattern = IFF(Not(a), b)
 }
 
-class IFFToDoubleNotIFF : EquivalenceImpl() {
+class IFFToDoubleNotIFF : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     override val patternFrom: FOLPattern = IFF(a, b)
@@ -296,7 +262,7 @@ class IFFToDoubleNotIFF : EquivalenceImpl() {
 }
 
 class IFFToDoubleNotIFFReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = IFFToDoubleNotIFF()
+    override val toReverse: Equivalence = IFFToDoubleNotIFF()
 }
 
 
@@ -304,45 +270,45 @@ class IFFToDoubleNotIFFReverse : ReverseEquivalence() {
  * -----------------------------BEGIN IMPLIES RELATED EQUIVALENCES-----------------
  */
 
-class AImpliesA : EquivalenceImpl() {
+class AImpliesA : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Implies(a, a)
     override val patternTo: FOLPattern = True()
 }
 
-class TrueImpliesA : EquivalenceImpl() {
+class TrueImpliesA : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Implies(True(), a)
     override val patternTo: FOLPattern = a
 }
 
 class TrueImpliesAReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = TrueImpliesA()
+    override val toReverse: Equivalence = TrueImpliesA()
 }
 
-class AImpliesTrue : EquivalenceImpl() {
+class AImpliesTrue : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Implies(a, True())
     override val patternTo: FOLPattern = True()
 }
 
-class FalseImpliesA : EquivalenceImpl() {
+class FalseImpliesA : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Implies(False(), a)
     override val patternTo: FOLPattern = True()
 }
 
-class AImpliesFalse : EquivalenceImpl() {
+class AImpliesFalse : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Implies(a, False())
     override val patternTo: FOLPattern = Not(a)
 }
 
 class AImpliesFalseReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = AImpliesFalse()
+    override val toReverse: Equivalence = AImpliesFalse()
 }
 
-class ImpliesAsOr : EquivalenceImpl() {
+class ImpliesAsOr : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     override val patternFrom: FOLPattern = Implies(a, b)
@@ -350,11 +316,11 @@ class ImpliesAsOr : EquivalenceImpl() {
 }
 
 class ImpliesAsOrReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = ImpliesAsOr()
+    override val toReverse: Equivalence = ImpliesAsOr()
 
 }
 
-class ModusPonens : EquivalenceImpl() {
+class ModusPonens : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     override val patternFrom: FOLPattern = And(a, Implies(a, b))
@@ -362,7 +328,7 @@ class ModusPonens : EquivalenceImpl() {
 }
 
 class ModusPonensReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = ModusPonens()
+    override val toReverse: Equivalence = ModusPonens()
 }
 
 
@@ -370,35 +336,35 @@ class ModusPonensReverse : ReverseEquivalence() {
  * -----------------------------BEGIN NOT RELATED EQUIVALENCES---------------------
  */
 
-class DoubleNotElimination : EquivalenceImpl() {
+class DoubleNotElimination : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Not(Not(a))
     override val patternTo: FOLPattern = a
 }
 
-class DoubleNotReverse : EquivalenceImpl() {
+class DoubleNotReverse : Equivalence() {
     private val a = AllowAllVars()
     override val patternFrom: FOLPattern = Not(Not(a))
     override val patternTo: FOLPattern = a
 }
 
-class NotFalse : EquivalenceImpl() {
+class NotFalse : Equivalence() {
     override val patternFrom: FOLPattern = Not(False())
     override val patternTo: FOLPattern = True()
 }
 
 class NotFalseReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = NotFalse()
+    override val toReverse: Equivalence = NotFalse()
 }
 
 
-class NotTrue : EquivalenceImpl() {
+class NotTrue : Equivalence() {
     override val patternFrom: FOLPattern = Not(True())
     override val patternTo: FOLPattern = False()
 }
 
 class NotTrueReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = NotTrue()
+    override val toReverse: Equivalence = NotTrue()
 
 }
 
@@ -406,7 +372,7 @@ class NotTrueReverse : ReverseEquivalence() {
  * -----------------------------BEGIN DE MORGAN LAWS ------------------------------
  */
 
-class DeMorganLawOr : EquivalenceImpl() {
+class DeMorganLawOr : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     override val patternFrom: FOLPattern = Not(Or(a, b))
@@ -414,10 +380,10 @@ class DeMorganLawOr : EquivalenceImpl() {
 }
 
 class DeMorganLawOrReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = DeMorganLawOr()
+    override val toReverse: Equivalence = DeMorganLawOr()
 }
 
-class DeMorganLawAnd : EquivalenceImpl() {
+class DeMorganLawAnd : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     override val patternFrom: FOLPattern = Not(And(a, b))
@@ -425,14 +391,14 @@ class DeMorganLawAnd : EquivalenceImpl() {
 }
 
 class DeMorganLawAndReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = DeMorganLawAnd()
+    override val toReverse: Equivalence = DeMorganLawAnd()
 }
 
 /**
  * -----------------------------DISTRIBUTIVITY ------------------------------------
  */
 
-class DistributeOrOverAnd : EquivalenceImpl() {
+class DistributeOrOverAnd : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     private val c = AllowAllVars()
@@ -441,10 +407,10 @@ class DistributeOrOverAnd : EquivalenceImpl() {
 }
 
 class DistributeOrOverAndReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = DistributeOrOverAnd()
+    override val toReverse: Equivalence = DistributeOrOverAnd()
 }
 
-class DistributeAndOverOr : EquivalenceImpl() {
+class DistributeAndOverOr : Equivalence() {
     private val a = AllowAllVars()
     private val b = AllowAllVars()
     private val c = AllowAllVars()
@@ -453,5 +419,5 @@ class DistributeAndOverOr : EquivalenceImpl() {
 }
 
 class DistributeAndOverOrReverse : ReverseEquivalence() {
-    override val toReverse: EquivalenceImpl = DistributeAndOverOr()
+    override val toReverse: Equivalence = DistributeAndOverOr()
 }

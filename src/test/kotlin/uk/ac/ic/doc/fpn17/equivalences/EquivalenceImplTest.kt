@@ -17,10 +17,10 @@ class PropositionalEquivalenceImplTest {
     lateinit var formula3 : FOLFormula
     lateinit var predicate1:PredicateAtom
     lateinit var predicate2:PredicateAtom
-    lateinit var equivalance1: ArbitraryEquivalence
-    lateinit var equivalance2: ArbitraryEquivalence
-    lateinit var equivalance3: ArbitraryEquivalence
-    lateinit var equivalance4: ArbitraryEquivalence
+    lateinit var equivalance1: ArbitraryPatternBasedRewriter
+    lateinit var equivalance2: ArbitraryPatternBasedRewriter
+    lateinit var equivalance3: ArbitraryPatternBasedRewriter
+    lateinit var equivalance4: ArbitraryPatternBasedRewriter
 
 
     @Before
@@ -34,10 +34,10 @@ class PropositionalEquivalenceImplTest {
         pattern2 = Or(And(True(),AllowAllVars()),AllowAllVars())
         pattern3 = Or(AllowAllVars(),False())
         pattern4 = Implies(AllowAllVars(),AllowAllVars())
-        equivalance1 = ArbitraryEquivalence(pattern1, False())
-        equivalance2 = ArbitraryEquivalence(pattern2, False())
-        equivalance3 = ArbitraryEquivalence(pattern3, False())
-        equivalance4 = ArbitraryEquivalence(pattern4, False())
+        equivalance1 = ArbitraryPatternBasedRewriter(pattern1, False())
+        equivalance2 = ArbitraryPatternBasedRewriter(pattern2, False())
+        equivalance3 = ArbitraryPatternBasedRewriter(pattern3, False())
+        equivalance4 = ArbitraryPatternBasedRewriter(pattern4, False())
     }
 
     @After
@@ -75,12 +75,12 @@ class MultipleSamePatternsTest{
     val formula3 : FOLFormula = And(And(True(),True()),And(False(),True()))
     val formula4: FOLFormula = And(True(),False())
     lateinit var pattern1 : FOLPattern
-    lateinit var arbitraryEquivalence1: ArbitraryEquivalence
+    lateinit var arbitraryEquivalence1: ArbitraryPatternBasedRewriter
     @Before
     fun setUp(){
         val patternAtom = AllowAllVars()
         pattern1 = And(patternAtom,patternAtom)
-        arbitraryEquivalence1 = ArbitraryEquivalence(pattern1,pattern1);
+        arbitraryEquivalence1 = ArbitraryPatternBasedRewriter(pattern1,pattern1);
     }
 
     @Test
@@ -113,8 +113,8 @@ class FOLEquivalenceTest{
     lateinit var formula2:FOLFormula;
     lateinit var formula3:FOLFormula;
     lateinit var formula4:FOLFormula;
-    lateinit var arbitraryEquivalence1: ArbitraryEquivalence
-    lateinit var arbitraryEquivalence2: ArbitraryEquivalence
+    lateinit var arbitraryEquivalence1: ArbitraryPatternBasedRewriter
+    lateinit var arbitraryEquivalence2: ArbitraryPatternBasedRewriter
 
     @Before
     fun setUp() {
@@ -133,13 +133,13 @@ class FOLEquivalenceTest{
 //        val existsVar = VariableName()
 //        val potentiallyBothVars = EquivalencePattern(arrayOf(forAllVar, existsVar))
 //        val pattern = ForAll(Exists(potentiallyBothVars, existsVar), forAllVar)
-//        arbitraryEquivalence2 = ArbitraryEquivalence(pattern, pattern)
+//        arbitraryEquivalence2 = ArbitraryPatternBasedRewriter(pattern, pattern)
 //    }
 
     private fun setUpPattern1() {
         val multiUseEquivalencePattern = AllowAllVars()
         val pattern1 = ForAll(multiUseEquivalencePattern)
-        arbitraryEquivalence1 = ArbitraryEquivalence(pattern1, pattern1)
+        arbitraryEquivalence1 = ArbitraryPatternBasedRewriter(pattern1, pattern1)
     }
 
     private fun setUpFormula4() {
