@@ -14,7 +14,7 @@ private fun <E> List<E>.random(random: java.util.Random): E? = if (size > 0) get
 
 private fun doWalk(start: FOLFormula, lengthWalk: Int = 2048, random: Random = Random()): Array<FOLFormula> {
     fun selectMatchingEquivalence(formula: FOLFormula): PatternBasedRewriter {
-        val candidate = availableEquivalences.toList().random(random)!!
+        val candidate = availablePropositionalEquivalences.toList().random(random)!!
         if (candidate.matches(formula) > 0) {
             return candidate;
         }

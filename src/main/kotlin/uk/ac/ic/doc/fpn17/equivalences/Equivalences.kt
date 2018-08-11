@@ -3,7 +3,7 @@ package uk.ac.ic.doc.fpn17.equivalences
 import uk.ac.ic.doc.fpn17.logic.*
 
 
-val availableEquivalences = arrayOf(OrAssociativity(), OrAssociativityReverse(), CommutativityOr(), OrIntroductionFalseVariant(), OrIntroductionFalseVariantReverse(), AOrA(), AOrAReverse(), AOrNotA(), AndAssociativity(), AndAssociativityReverse(), CommutativityAnd(), AAndNotA(), AndFalse(), AndTrue(), AndTrueReverse(), AAndA(), AAndAReverse(), CommutativityIFF(), IFFToDoubleImplies(), IFFToDoubleImpliesReverse(), NotIFF(), IFFToDoubleNotIFF(), IFFToDoubleNotIFFReverse(), AImpliesA(), TrueImpliesA(), TrueImpliesAReverse(), AImpliesTrue(), FalseImpliesA(), AImpliesFalse(), AImpliesFalseReverse(), ImpliesAsOr(), ImpliesAsOrReverse(), ModusPonens(), ModusPonensReverse(), DoubleNotElimination(), DoubleNotReverse(), NotFalse(), NotFalseReverse(), NotTrue(), NotTrueReverse(), DeMorganLawOr(), DeMorganLawOrReverse(), DeMorganLawAnd(), DeMorganLawAndReverse(), DistributeOrOverAnd(), DistributeOrOverAndReverse(), DistributeAndOverOr(), DistributeAndOverOrReverse())
+val availablePropositionalEquivalences = arrayOf(OrAssociativity(), OrAssociativityReverse(), CommutativityOr(), OrIntroductionFalseVariant(), OrIntroductionFalseVariantReverse(), AOrA(), AOrAReverse(), AOrNotA(), AndAssociativity(), AndAssociativityReverse(), CommutativityAnd(), AAndNotA(), AndFalse(), AndTrue(), AndTrueReverse(), AAndA(), AAndAReverse(), CommutativityIFF(), IFFToDoubleImplies(), IFFToDoubleImpliesReverse(), NotIFF(), IFFToDoubleNotIFF(), IFFToDoubleNotIFFReverse(), AImpliesA(), TrueImpliesA(), TrueImpliesAReverse(), AImpliesTrue(), FalseImpliesA(), AImpliesFalse(), AImpliesFalseReverse(), ImpliesAsOr(), ImpliesAsOrReverse(), ModusPonens(), ModusPonensReverse(), DoubleNotElimination(), DoubleNotReverse(), NotFalse(), NotFalseReverse(), NotTrue(), NotTrueReverse(), DeMorganLawOr(), DeMorganLawOrReverse(), DeMorganLawAnd(), DeMorganLawAndReverse(), DistributeOrOverAnd(), DistributeOrOverAndReverse(), DistributeAndOverOr(), DistributeAndOverOrReverse())
 
 interface PatternBasedRewriter {
     fun matches(formula: FOLFormula): Int
@@ -421,3 +421,49 @@ class DistributeAndOverOr : Equivalence() {
 class DistributeAndOverOrReverse : ReverseEquivalence() {
     override val toReverse: Equivalence = DistributeAndOverOr()
 }
+
+/**
+ * -----------------------------PREDICATE EQUIVALENCES ----------------------------
+ */
+
+class SwapForAll : Equivalence(){
+    private val a = AllowAllVars()
+    val v1 = VariableName()
+    val v2 = VariableName()
+    override val patternFrom: FOLPattern = ForAll(ForAll(a, v1), v2)
+    override val patternTo: FOLPattern = ForAll(ForAll(a, v2), v1)
+}
+
+class SwapExists : Equivalence(){
+    private val a = AllowAllVars()
+    val v1 = VariableName()
+    val v2 = VariableName()
+    override val patternFrom: FOLPattern = ForAll(ForAll(a, v1), v2)
+    override val patternTo: FOLPattern = ForAll(ForAll(a, v2), v1)
+}
+
+class PushNegationThroughForAll : Equivalence(){
+    private val a = AllowAllVars()
+    val v1 = VariableName()
+    override val patternFrom: FOLPattern = Not(ForAll(a,v1))
+    override val patternTo: FOLPattern = Exists(Not(a),v1)
+}
+
+class PushNegationThroughForAllReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = PushNegationThroughForAll()
+}
+
+class PushNegationThroughExist : Equivalence(){
+    private val a = AllowAllVars()
+    val v1 = VariableName()
+    override val patternFrom: FOLPattern = Not(Exists(a,v1))
+    override val patternTo: FOLPattern = ForAll(Not(a),v1)
+}
+
+
+class PushNegationThroughExistReverse : ReverseEquivalence(){
+    override val toReverse: Equivalence = PushNegationThroughExist()
+}
+
+
+
