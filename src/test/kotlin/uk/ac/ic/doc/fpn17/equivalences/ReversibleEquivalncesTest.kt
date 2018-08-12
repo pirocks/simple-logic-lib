@@ -19,9 +19,9 @@ abstract class ReverseEquivalenceTest {
     }
 }
 
-private val aPredicate = PredicateAtom(Predicate({false}), arrayOf())
-private val bPredicate = PredicateAtom(Predicate({false}), arrayOf())
-private val cPredicate = PredicateAtom(Predicate({false}), arrayOf())
+private val aPredicate = RelationAtom(Relation({ false }), arrayOf())
+private val bPredicate = RelationAtom(Relation({ false }), arrayOf())
+private val cPredicate = RelationAtom(Relation({ false }), arrayOf())
 private val falseAtom = False()
 private val trueAtom = True()
 
@@ -172,8 +172,8 @@ class DistributeAndOverOrReverseEquivalenceTest : ReverseEquivalenceTest(){
 }
 
 private val v = VariableName()
-private val p = PredicateAtom(Predicate({false}), arrayOf(v))
-private val p2 = PredicateAtom(Predicate({false}), arrayOf())
+private val p = RelationAtom(Relation({ false }), arrayOf(v))
+private val p2 = RelationAtom(Relation({ false }), arrayOf())
 
 class ForAllAToAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence

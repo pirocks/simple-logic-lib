@@ -140,20 +140,6 @@ sealed class Equivalence : PatternBasedRewriter {
 
 
 class ArbitraryPatternBasedRewriter(override val patternFrom: FOLPattern, override val patternTo: FOLPattern) : Equivalence()
-/*
-equivalences to implement:
-and:
-(a & b,b & a)
-(a & a,a)
-(a & True,a)
-(a & False,a)
-(a & ~a,False)
-(a & (b & c),(a & b) & c)
-or:
-(a | b, b | a)
-iff:
-
- */
 
 /**
  * -----------------------------BEGIN OR RELATED EQUIVALENCES----------------------

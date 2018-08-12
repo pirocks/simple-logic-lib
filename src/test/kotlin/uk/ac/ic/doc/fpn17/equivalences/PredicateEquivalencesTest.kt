@@ -6,7 +6,7 @@ import uk.ac.ic.doc.fpn17.logic.*
 class SimpleSwapForAllTest{
     val v1 = VariableName()
     val v2 = VariableName()
-    val predicateAtom = PredicateAtom(Predicate({false}), arrayOf(v1,v2))
+    val predicateAtom = RelationAtom(Relation({ false }), arrayOf(v1, v2))
     val c = And(Or(True(), False()),predicateAtom)
     val expr = ForAll(ForAll(c,v1),v2)
     val expected = ForAll(ForAll(c,v2),v1)
@@ -21,7 +21,7 @@ class SimpleSwapForAllTest{
 class SimpleSwapExistTest{
     val v1 = VariableName()
     val v2 = VariableName()
-    val predicateAtom = PredicateAtom(Predicate({false}), arrayOf(v1,v2))
+    val predicateAtom = RelationAtom(Relation({ false }), arrayOf(v1, v2))
     val c = predicateAtom
     val expr = Exists(Exists(c,v1),v2)
     val expected = Exists(Exists(c,v2),v1)
@@ -37,7 +37,7 @@ class SimpleSwapExistTest{
 class SimplePushNegationTest{
     val v1 = VariableName()
     val v2 = VariableName()
-    val predicateAtom = PredicateAtom(Predicate({false}), arrayOf(v1,v2))
+    val predicateAtom = RelationAtom(Relation({ false }), arrayOf(v1, v2))
     val c = predicateAtom
     val expr = Not(ForAll(Exists(c,v1),v2))
     val expected = Exists(ForAll(Not(c),v1),v2)
@@ -54,7 +54,7 @@ class SimplePushNegationTest{
 class SimpleDistributeForAllOverAnd{
     val v1 = VariableName()
     val right = And(True(), False())
-    val left = PredicateAtom(Predicate({ false }), arrayOf(v1))
+    val left = RelationAtom(Relation({ false }), arrayOf(v1))
     val c = And(left, right)
     val expr = ForAll(c,v1)
     val expected = And(ForAll(left,v1),ForAll(right,v1))
@@ -70,7 +70,7 @@ class SimpleDistributeForAllOverAnd{
 class SimpleDistributeExistsOverOr{
     val v1 = VariableName()
     val right = Or(True(), False())
-    val left = PredicateAtom(Predicate({ false }), arrayOf(v1))
+    val left = RelationAtom(Relation({ false }), arrayOf(v1))
     val c = Or(left, right)
     val expr = Exists(c,v1)
     val expected = Or(Exists(left,v1),Exists(right,v1))

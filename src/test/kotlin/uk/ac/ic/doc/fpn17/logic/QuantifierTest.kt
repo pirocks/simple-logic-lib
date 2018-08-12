@@ -1,17 +1,13 @@
 package uk.ac.ic.doc.fpn17.logic
 
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import uk.ac.ic.doc.fpn17.util.UUIDUtil
-import java.util.*
 
 class QuantifierTest {
 
-    val singleVarPredicate : Predicate = Predicate( { assert(it.size == 1);false;})
-    val doubleVarPredicate : Predicate = Predicate({ assert(it.size == 2);true;})
+    val singleVarRelation: Relation = Relation({ assert(it.size == 1);false; })
+    val doubleVarRelation: Relation = Relation({ assert(it.size == 2);true; })
     lateinit var simpleExpr1: ForAll
     var var1: VariableName = VariableName()
     var var2: VariableName = VariableName()
@@ -32,9 +28,9 @@ class QuantifierTest {
     private fun setUpMultiQuantifier() {
         val complexExpressionExistsVar = VariableName();
         val complexExpressionForAllVar = VariableName();
-        val singleVarPredicateAtomExistsVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionExistsVar))
-        val singleVarPredicateAtomForAllVar = PredicateAtom(singleVarPredicate, arrayOf(complexExpressionForAllVar))
-        val doubleVarPredicateAtom = PredicateAtom(doubleVarPredicate, arrayOf(complexExpressionExistsVar, complexExpressionForAllVar))
+        val singleVarPredicateAtomExistsVar = RelationAtom(singleVarRelation, arrayOf(complexExpressionExistsVar))
+        val singleVarPredicateAtomForAllVar = RelationAtom(singleVarRelation, arrayOf(complexExpressionForAllVar))
+        val doubleVarPredicateAtom = RelationAtom(doubleVarRelation, arrayOf(complexExpressionExistsVar, complexExpressionForAllVar))
         val complexExpressionPartOne = Exists(IFF(Or(Negation(singleVarPredicateAtomForAllVar), And(singleVarPredicateAtomExistsVar,Negation(False()))), Implies(singleVarPredicateAtomForAllVar, doubleVarPredicateAtom)), complexExpressionExistsVar)
         val complexExpressionPartTwo = IFF(singleVarPredicateAtomForAllVar, False())
         val complexExpression = ForAll(And(And(complexExpressionPartOne, complexExpressionPartOne), complexExpressionPartTwo), complexExpressionForAllVar)
@@ -44,8 +40,8 @@ class QuantifierTest {
 
     private fun setUpSimpleExpr() {
         val simpleExprVar = VariableName()
-        val simpleExprPredicateAtom: PredicateAtom = PredicateAtom(singleVarPredicate, arrayOf(simpleExprVar))
-        simpleExpr1 = ForAll(Implies(And(simpleExprPredicateAtom, True()), simpleExprPredicateAtom), simpleExprVar)
+        val simpleExprRelationAtom: RelationAtom = RelationAtom(singleVarRelation, arrayOf(simpleExprVar))
+        simpleExpr1 = ForAll(Implies(And(simpleExprRelationAtom, True()), simpleExprRelationAtom), simpleExprVar)
         simpleExpr1Var1 = renameVar(simpleExpr1, simpleExprVar, var1) as ForAll
         simpleExpr1Var2 = renameVar(simpleExpr1, simpleExprVar, var2) as ForAll
     }

@@ -73,8 +73,8 @@ class VariableName : Serializable {
 
 }
 
-data class Signature(val elements: Set<SignatureElement>, val predicates: Set<Predicate>)
-class Predicate {
+data class Signature(val elements: Set<SignatureElement>, val relations: Set<Relation>)
+class Relation {
     companion object {
         @JvmStatic
         private var predicateCount = 0;
@@ -266,9 +266,9 @@ class False : FOLFormula() {
 
 }
 
-open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula() {
+open class RelationAtom(val relation: Relation, val expectedArgs: Array<VariableName>) : FOLFormula() {
     override fun hashCodeImpl(hashContext: HashContext): Int {
-        var hash = predicate.uuid.hashCode()
+        var hash = relation.uuid.hashCode()
         expectedArgs.forEach {
             hash = 31*hash + hashContext.variableNumberMappings[it]!!
         }
@@ -280,22 +280,22 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
     override fun sameAs(other: FOLFormula): Boolean {
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
         assert(expectedArgs.isEmpty())
-        if (other !is PredicateAtom) {
+        if (other !is RelationAtom) {
             return false;
         } else {
             assert(other.expectedArgs.isEmpty())
-            return predicate.uuid == other.predicate.uuid;
+            return relation.uuid == other.relation.uuid;
         }
     }
 
     override fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
-        if (other !is PredicateAtom) {
+        if (other !is RelationAtom) {
             return false;
         }
         if (other.expectedArgs.size != expectedArgs.size) {
             return false
         }
-        if (other.predicate.uuid != predicate.uuid) {
+        if (other.relation.uuid != relation.uuid) {
             return false
         }
         fun translateExpectedArgs(toTranslate: Array<VariableName>): Array<VariableName?> = toTranslate.map { equalityContext.uuidVariableMappings[it]!! }.toTypedArray()// okay to assert not null, because there are no free vars. So there shouldn't be unknown vars
@@ -313,10 +313,10 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
         val notNullArgs: Array<VariableValue> = Array(args.size, init = {
             args[it]!!
         })
-        return predicate.implmentation.invoke(notNullArgs)
+        return relation.implmentation.invoke(notNullArgs)
     }
 
-    private fun predicateString(): String = "predicateNumber" + predicate.hashCode().toString(16)
+    private fun predicateString(): String = "predicateNumber" + relation.hashCode().toString(16)
 
     override fun toMathML2(): String = """<mrow><mi>${predicateString()}</mi><mfenced>${expectedArgs.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 
@@ -423,7 +423,7 @@ class Exists(override val child: FOLFormula, override val varName: VariableName 
 }
 
 
-//todo technically this could all done with a predicate atom
+//todo technically this could all done with a relation atom
 //todo maybe make atom class to abstract the redundancy here:
 class EvaluatedAPatternException() : Exception("You tried to evaluate a pattern. Patterns cannot be evaluated by definition.")
 
@@ -492,7 +492,7 @@ class AllowAllVars : PatternMember(){
 
 class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMember() {
     /**
-     * todo duplication with predicate atom
+     * todo duplication with relation atom
      */
     override fun hashCodeImpl(hashContext: HashContext): Int {
         var hash = super.hashCode()
