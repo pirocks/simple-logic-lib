@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.fpn17.equivalences
 
 import uk.ac.ic.doc.fpn17.logic.*
+import kotlin.concurrent.fixedRateTimer
 
 
 val availablePropositionalEquivalences = arrayOf(
@@ -132,7 +133,7 @@ sealed class Equivalence : PatternBasedRewriter {
             }
         }.rewrite(formula)
         assert(patternFound)
-        return rewritten
+        return renameAllVars(rewritten)
 
     }
 }

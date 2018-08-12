@@ -108,3 +108,31 @@ public fun renameVar(formula: FOLFormula, from: VariableName, to: VariableName):
         }
     }.rewrite(formula)
 }
+
+/**
+ * Useful for changing the names of every variable in a formula.
+ */
+fun renameAllVars(formula: FOLFormula): FOLFormula {
+    val vars = hashSetOf<VariableName>()
+    object : RewritingVisitor() {
+        override fun rewritePredicateAtom(toRewrite: PredicateAtom): FOLFormula {
+            toRewrite.expectedArgs.forEach { assert(it in vars) }
+            return super.rewritePredicateAtom(toRewrite)
+        }
+
+        override fun rewriteForAll(toRewrite: ForAll): FOLFormula {
+            vars.add(toRewrite.varName)
+            return super.rewriteForAll(toRewrite)
+        }
+
+        override fun rewriteExists(toRewrite: Exists): FOLFormula {
+            vars.add(toRewrite.varName)
+            return super.rewriteExists(toRewrite)
+        }
+    }.rewrite(formula)
+    var res = formula
+    vars.forEach {
+        res = renameVar(res, it, VariableName())
+    }
+    return res
+}
