@@ -9,7 +9,7 @@
     <version>0.0.5-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.2.60</kotlin.version>
+        <kotlin.version>1.2.70</kotlin.version>
     </properties>
 
     <dependencies>
