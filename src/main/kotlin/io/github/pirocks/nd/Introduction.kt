@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.nd
+package io.github.pirocks.nd
 
 import io.github.pirocks.logic.*
 
@@ -78,7 +78,7 @@ class FalsityIntroduction(val contradictoryOne: NDStatement, val contradictoryTw
 /**
  * effectively copies a statement. needed for completeness reasons
  */
-class IDIntroduction(val toCopy:NDStatement) : NDIntroductionStatement {
+class IDIntroduction(val toCopy: NDStatement) : NDIntroductionStatement {
     override val value: FOLFormula
         get() = toCopy.value
 }

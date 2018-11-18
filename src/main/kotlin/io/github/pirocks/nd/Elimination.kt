@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.nd
+package io.github.pirocks.nd
 
 import io.github.pirocks.logic.*
 import java.util.*
@@ -89,7 +89,7 @@ class DoubleNegationElimination(override val eliminationTarget: NDStatement): ND
         get() = ((eliminationTarget.value as Negation).child as Negation).child
 }
 
-class FalsityElimination(override val eliminationTarget: NDStatement, override val value: FOLFormula) : NDEliminationStatement{
+class FalsityElimination(override val eliminationTarget: NDStatement, override val value: FOLFormula) : NDEliminationStatement {
     init {
         assert (eliminationTarget.value is False)
     }

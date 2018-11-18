@@ -1,7 +1,7 @@
 package io.github.pirocks.logic
 
 import io.github.pirocks.equivalences.MatchSubstitutions
-import uk.ac.ic.doc.fpn17.util.UUIDUtil
+import io.github.pirocks.util.UUIDUtil
 import java.io.Serializable
 import java.util.*
 

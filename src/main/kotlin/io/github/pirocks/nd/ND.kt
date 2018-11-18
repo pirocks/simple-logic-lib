@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.nd
+package io.github.pirocks.nd
 
 import io.github.pirocks.logic.FOLFormula
 import io.github.pirocks.logic.True
@@ -13,7 +13,7 @@ interface NDStatement : Serializable {
 }
 
 @Suppress("RedundantModalityModifier")
-interface NDEliminationStatement : NDStatement{
+interface NDEliminationStatement : NDStatement {
     abstract val eliminationTarget: NDStatement
 }
 interface NDIntroductionStatement : NDStatement
@@ -35,7 +35,7 @@ class UnknownBlockStatement() : BlockStatement(listOf()){
     override val children = LinkedList<NDStatement>()
 
 }//filler statement for init//todo really this should be abstract and have an equivalent version for each rule, as to allow for skeleton construction
-open class BlockStatement(open val children: List<NDStatement>) :NDStatement {
+open class BlockStatement(open val children: List<NDStatement>) : NDStatement {
     override val value: FOLFormula
         get() = children.last().value
 }
@@ -44,7 +44,7 @@ open class BlockStatement(open val children: List<NDStatement>) :NDStatement {
 
 data class Known(val inProof:Boolean, val statement: NDStatement)
 
-class Knowns(val knowns : Set<Known>,var pastKnowns:Optional<Knowns> = Optional.empty())
+class Knowns(val knowns : Set<Known>, var pastKnowns:Optional<Knowns> = Optional.empty())
 
 class BruteForceSolver(override val problem: Problem) : NDSolver {
 
@@ -68,11 +68,11 @@ class BruteForceSolver(override val problem: Problem) : NDSolver {
         val proof = UnknownBlockStatement();
         problem.givens.forEach { proof.children.add(GivenStatement(it)) }
         val givensAsKnowns = mutableListOf<Known>()
-        proof.children.forEach { givensAsKnowns.add(Known(true,it)) }
+        proof.children.forEach { givensAsKnowns.add(Known(true, it)) }
         TODO()
     }
 
-    fun generateMoreKnowledge(knowns: Knowns,depth:Int):Knowns{
+    fun generateMoreKnowledge(knowns: Knowns, depth:Int): Knowns {
         TODO()
     }
 

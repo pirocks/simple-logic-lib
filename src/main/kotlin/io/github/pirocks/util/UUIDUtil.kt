@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.util
+package io.github.pirocks.util
 
 import java.util.*
 import java.util.logging.Logger

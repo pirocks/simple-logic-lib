@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17
+package io.github.pirocks
 import io.github.pirocks.logic.*
 
 
