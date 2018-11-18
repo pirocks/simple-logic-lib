@@ -1,8 +1,8 @@
-package uk.ac.ic.doc.fpn17.equivalences
+package io.github.pirocks.equivalences
 
+import io.github.pirocks.logic.*
 import org.junit.Before
 import org.junit.Test
-import uk.ac.ic.doc.fpn17.logic.*
 import java.util.*
 
 /**
@@ -48,14 +48,14 @@ class RandomWalkTest {
         val seed = System.currentTimeMillis()
         val random = Random()
         random.setSeed(seed)
-        falseWalks = doWalk(False(),random = random)
-        trueWalks = doWalk(True(),random = random)
+        falseWalks = doWalk(False(), random = random)
+        trueWalks = doWalk(True(), random = random)
         println("""Seed is ${seed}""")
     }
 
     @Test
     fun doTest() {
-        var prev:FOLFormula = False()//for debugging purposes
+        var prev: FOLFormula = False()//for debugging purposes
         falseWalks.iterator().forEach {
             val ev = EvalContext(Signature(emptySet(), emptySet()), mutableMapOf())
             assert(!it.evaluate(ev))

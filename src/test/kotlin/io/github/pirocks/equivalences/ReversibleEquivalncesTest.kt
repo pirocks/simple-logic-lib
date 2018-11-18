@@ -1,7 +1,7 @@
-package uk.ac.ic.doc.fpn17.equivalences
+package io.github.pirocks.equivalences
 
+import io.github.pirocks.logic.*
 import org.junit.Test
-import uk.ac.ic.doc.fpn17.logic.*
 
 abstract class ReverseEquivalenceTest {
     abstract val forward: Equivalence
@@ -31,7 +31,7 @@ class OrAssociativityReverseEquivalenceTest : ReverseEquivalenceTest() {
     override val backwards: Equivalence
         get() = OrAssociativityReverse()
     override val expression: FOLFormula
-        get() = Or(aPredicate,Or(bPredicate,And(cPredicate,Implies(falseAtom,trueAtom))))
+        get() = Or(aPredicate, Or(bPredicate, And(cPredicate, Implies(falseAtom, trueAtom))))
 }
 
 class OrIntroductionFalseVariantReverseEquivalenceTest : ReverseEquivalenceTest(){
@@ -40,7 +40,7 @@ class OrIntroductionFalseVariantReverseEquivalenceTest : ReverseEquivalenceTest(
     override val backwards: Equivalence
         get() = OrIntroductionFalseVariantReverse()
     override val expression: FOLFormula
-        get() = And(falseAtom,Implies(trueAtom,Or(aPredicate,bPredicate)))
+        get() = And(falseAtom, Implies(trueAtom, Or(aPredicate, bPredicate)))
 }
 class AOrAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -48,7 +48,7 @@ class AOrAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = AOrAReverse()
     override val expression: FOLFormula
-        get() = Or(Or(aPredicate,And(bPredicate,Implies(falseAtom,trueAtom))),Or(aPredicate,And(bPredicate,Implies(falseAtom,trueAtom))))
+        get() = Or(Or(aPredicate, And(bPredicate, Implies(falseAtom, trueAtom))), Or(aPredicate, And(bPredicate, Implies(falseAtom, trueAtom))))
 }
 class AndAssociativityReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -56,7 +56,7 @@ class AndAssociativityReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = AndAssociativityReverse()
     override val expression: FOLFormula
-        get() = And(aPredicate,And(bPredicate,And(cPredicate,Implies(falseAtom,trueAtom))))
+        get() = And(aPredicate, And(bPredicate, And(cPredicate, Implies(falseAtom, trueAtom))))
 }
 class AndTrueReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -64,7 +64,7 @@ class AndTrueReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = AndTrueReverse()
     override val expression: FOLFormula
-        get() = And(Or(Implies(aPredicate,bPredicate),falseAtom),trueAtom)
+        get() = And(Or(Implies(aPredicate, bPredicate), falseAtom), trueAtom)
 }
 class AAndAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -72,7 +72,7 @@ class AAndAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = AAndAReverse()
     override val expression: FOLFormula
-        get() = And(Or(aPredicate,And(bPredicate,Implies(falseAtom,trueAtom))),Or(aPredicate,And(bPredicate,Implies(falseAtom,trueAtom))))
+        get() = And(Or(aPredicate, And(bPredicate, Implies(falseAtom, trueAtom))), Or(aPredicate, And(bPredicate, Implies(falseAtom, trueAtom))))
 }
 class IFFToDoubleImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -80,7 +80,7 @@ class IFFToDoubleImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = IFFToDoubleImpliesReverse()
     override val expression: FOLFormula
-        get() = IFF(And(aPredicate,bPredicate),And(aPredicate,bPredicate))
+        get() = IFF(And(aPredicate, bPredicate), And(aPredicate, bPredicate))
 }
 class IFFToDoubleNotIFFReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -88,7 +88,7 @@ class IFFToDoubleNotIFFReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = IFFToDoubleNotIFFReverse()
     override val expression: FOLFormula
-        get() = IFF(And(aPredicate,falseAtom),And(bPredicate,trueAtom))
+        get() = IFF(And(aPredicate, falseAtom), And(bPredicate, trueAtom))
 }
 class TrueImpliesAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -96,7 +96,7 @@ class TrueImpliesAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = TrueImpliesAReverse()
     override val expression: FOLFormula
-        get() = Implies(trueAtom,Implies(aPredicate, bPredicate))
+        get() = Implies(trueAtom, Implies(aPredicate, bPredicate))
 }
 class AImpliesFalseReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -104,7 +104,7 @@ class AImpliesFalseReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = AImpliesFalseReverse()
     override val expression: FOLFormula
-        get() = And(aPredicate,Implies(bPredicate, falseAtom))
+        get() = And(aPredicate, Implies(bPredicate, falseAtom))
 }
 class ImpliesAsOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -112,7 +112,7 @@ class ImpliesAsOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = ImpliesAsOrReverse()
     override val expression: FOLFormula
-        get() = And(aPredicate,Implies(trueAtom, bPredicate))
+        get() = And(aPredicate, Implies(trueAtom, bPredicate))
 }
 class ModusPonensReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -120,7 +120,7 @@ class ModusPonensReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = ModusPonensReverse()
     override val expression: FOLFormula
-        get() = IFF(aPredicate,And(bPredicate,Implies(bPredicate, trueAtom)))
+        get() = IFF(aPredicate, And(bPredicate, Implies(bPredicate, trueAtom)))
 }
 class NotFalseReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -128,7 +128,7 @@ class NotFalseReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = NotFalseReverse()
     override val expression: FOLFormula
-        get() = And(aPredicate,Not(falseAtom))
+        get() = And(aPredicate, Not(falseAtom))
 }
 class NotTrueReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -136,7 +136,7 @@ class NotTrueReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = NotTrueReverse()
     override val expression: FOLFormula
-        get() = Implies(Not(aPredicate),Not(Not(trueAtom)))
+        get() = Implies(Not(aPredicate), Not(Not(trueAtom)))
 }
 class DeMorganLawOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -144,7 +144,7 @@ class DeMorganLawOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = DeMorganLawOrReverse()
     override val expression: FOLFormula
-        get() = Not(Or(IFF(aPredicate, falseAtom),IFF(bPredicate, trueAtom)))
+        get() = Not(Or(IFF(aPredicate, falseAtom), IFF(bPredicate, trueAtom)))
 }
 class DeMorganLawAndReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -152,7 +152,7 @@ class DeMorganLawAndReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = DeMorganLawAndReverse()
     override val expression: FOLFormula
-        get() = Not(And(IFF(aPredicate, falseAtom),IFF(bPredicate, trueAtom)))
+        get() = Not(And(IFF(aPredicate, falseAtom), IFF(bPredicate, trueAtom)))
 }
 class DistributeOrOverAndReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -160,7 +160,7 @@ class DistributeOrOverAndReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = DistributeOrOverAndReverse()
     override val expression: FOLFormula
-        get() = Or(aPredicate,And(bPredicate, cPredicate))
+        get() = Or(aPredicate, And(bPredicate, cPredicate))
 }
 class DistributeAndOverOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val forward: Equivalence
@@ -168,7 +168,7 @@ class DistributeAndOverOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = DistributeAndOverOrReverse()
     override val expression: FOLFormula
-        get() = And(aPredicate,Or(bPredicate, cPredicate))
+        get() = And(aPredicate, Or(bPredicate, cPredicate))
 }
 
 private val v = VariableName()
@@ -181,7 +181,7 @@ class ForAllAToAReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = ForAllAToAReverse()
     override val expression: FOLFormula
-        get() = ForAll(p2,v)
+        get() = ForAll(p2, v)
 
 }
 class ExistOverAndReverseEquivalenceTest : ReverseEquivalenceTest(){
@@ -190,7 +190,7 @@ class ExistOverAndReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = ExistOverAndReverse()
     override val expression: FOLFormula
-        get() = Exists(And(Or(p2,True()),p),v)
+        get() = Exists(And(Or(p2, True()), p), v)
 
 }
 class ForAllOverOrReverseEquivalenceTest : ReverseEquivalenceTest(){
@@ -199,7 +199,7 @@ class ForAllOverOrReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = ForAllOverOrReverse()
     override val expression: FOLFormula
-        get() = ForAll(Or(p2,p),v)
+        get() = ForAll(Or(p2, p), v)
 
 }
 class ForAllOverImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
@@ -208,7 +208,7 @@ class ForAllOverImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = ForAllOverImpliesReverse()
     override val expression: FOLFormula
-        get() = ForAll(Implies(p2, p),v)
+        get() = ForAll(Implies(p2, p), v)
 
 }
 class ExistsOverImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
@@ -217,6 +217,6 @@ class ExistsOverImpliesReverseEquivalenceTest : ReverseEquivalenceTest(){
     override val backwards: Equivalence
         get() = ExistsOverImpliesReverse()
     override val expression: FOLFormula
-        get() = Exists(Implies(p2, p),v)
+        get() = Exists(Implies(p2, p), v)
 
 }

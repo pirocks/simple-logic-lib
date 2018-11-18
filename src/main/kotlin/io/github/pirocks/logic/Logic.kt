@@ -1,6 +1,6 @@
-package uk.ac.ic.doc.fpn17.logic
+package io.github.pirocks.logic
 
-import uk.ac.ic.doc.fpn17.equivalences.MatchSubstitutions
+import io.github.pirocks.equivalences.MatchSubstitutions
 import uk.ac.ic.doc.fpn17.util.UUIDUtil
 import java.io.Serializable
 import java.util.*
@@ -18,8 +18,8 @@ interface Formula: Serializable{
     abstract val subFormulas: Array<FOLFormula>
 }
 
-interface FOLPattern: Formula{
-    fun matches(formula:FOLFormula,matchSubstitutions: MatchSubstitutions): Boolean{
+interface FOLPattern: Formula {
+    fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean{
         if(formula.javaClass != javaClass){
             return false
         }
@@ -110,7 +110,7 @@ class HashContext(
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
 
 
-sealed class FOLFormula : Formula,FOLPattern {
+sealed class FOLFormula : Formula, FOLPattern {
 
     @Deprecated("Equals should now be used instead of sameAs", ReplaceWith(".equals()" ))
     open fun sameAs(other: FOLFormula): Boolean {
@@ -201,7 +201,7 @@ sealed class Quantifier(open val child: FOLFormula, open val varName: VariableNa
         return child.sameAsImpl(other.child, newEqualityContext);
     }
 
-    override fun matches(formula: FOLFormula,matchSubstitutions: MatchSubstitutions): Boolean {
+    override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
         if(formula.javaClass != javaClass){
             return false
         }
@@ -508,7 +508,7 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMember() {
     override fun toMathML2(): String = """<mrow><mi>PatternAllowsVars_PatternNumber_${(super.hashCode()).toString(36)}</mi><mfenced>${vars.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 
     override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
-        if(containsVarsOtherThan(formula,vars)){
+        if(containsVarsOtherThan(formula, vars)){
             return false
         }
         return defaultMatchSubstitution(formula, matchSubstitutions)
@@ -543,7 +543,7 @@ class ForbidCertainVars(val vars: Array<VariableName>) : PatternMember() {
     override fun toMathML2(): String = """<mrow><mi>PatternExcludesVars_PatternNumber_${(super.hashCode()).toString(36)}</mi><mfenced>${vars.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 
     override fun matches(formula: FOLFormula, matchSubstitutions: MatchSubstitutions): Boolean {
-        if(vars.any{ containsVar(formula,it)}){
+        if(vars.any{ containsVar(formula, it) }){
             return false
         }
         return defaultMatchSubstitution(formula, matchSubstitutions)

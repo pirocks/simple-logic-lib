@@ -1,9 +1,9 @@
-package uk.ac.ic.doc.fpn17.equivalences
+package io.github.pirocks.equivalences
 
+import io.github.pirocks.logic.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import uk.ac.ic.doc.fpn17.logic.*
 import kotlin.test.assertEquals
 
 class PropositionalEquivalenceImplTest {
@@ -29,11 +29,11 @@ class PropositionalEquivalenceImplTest {
         relation2 = RelationAtom(Relation({ false }), arrayOf())
         formula1 = And(Or(And(True(), relation1), False()), Or(And(True(), relation1), True()))
         formula2 = Implies(And(False(), relation2), And(True(), Or(relation2, False())))
-        formula3 = Implies(formula1,formula2)
-        pattern1 = And(True(),AllowAllVars())
-        pattern2 = Or(And(True(),AllowAllVars()),AllowAllVars())
-        pattern3 = Or(AllowAllVars(),False())
-        pattern4 = Implies(AllowAllVars(),AllowAllVars())
+        formula3 = Implies(formula1, formula2)
+        pattern1 = And(True(), AllowAllVars())
+        pattern2 = Or(And(True(), AllowAllVars()), AllowAllVars())
+        pattern3 = Or(AllowAllVars(), False())
+        pattern4 = Implies(AllowAllVars(), AllowAllVars())
         equivalance1 = ArbitraryPatternBasedRewriter(pattern1, False())
         equivalance2 = ArbitraryPatternBasedRewriter(pattern2, False())
         equivalance3 = ArbitraryPatternBasedRewriter(pattern3, False())
@@ -70,17 +70,17 @@ class PropositionalEquivalenceImplTest {
 }
 
 class MultipleSamePatternsTest{
-    val formula1: FOLFormula = And(True(),True())
-    val formula2: FOLFormula = And(And(True(),True()),And(True(),True()))
-    val formula3 : FOLFormula = And(And(True(),True()),And(False(),True()))
-    val formula4: FOLFormula = And(True(),False())
+    val formula1: FOLFormula = And(True(), True())
+    val formula2: FOLFormula = And(And(True(), True()), And(True(), True()))
+    val formula3 : FOLFormula = And(And(True(), True()), And(False(), True()))
+    val formula4: FOLFormula = And(True(), False())
     lateinit var pattern1 : FOLPattern
     lateinit var arbitraryEquivalence1: ArbitraryPatternBasedRewriter
     @Before
     fun setUp(){
         val patternAtom = AllowAllVars()
-        pattern1 = And(patternAtom,patternAtom)
-        arbitraryEquivalence1 = ArbitraryPatternBasedRewriter(pattern1,pattern1);
+        pattern1 = And(patternAtom, patternAtom)
+        arbitraryEquivalence1 = ArbitraryPatternBasedRewriter(pattern1, pattern1);
     }
 
     @Test
@@ -109,10 +109,10 @@ class MultipleSamePatternsTest{
 
 class FOLEquivalenceTest{
     val alwaysFalsePredicate = Relation({ false })
-    lateinit var formula1:FOLFormula;
-    lateinit var formula2:FOLFormula;
-    lateinit var formula3:FOLFormula;
-    lateinit var formula4:FOLFormula;
+    lateinit var formula1: FOLFormula;
+    lateinit var formula2: FOLFormula;
+    lateinit var formula3: FOLFormula;
+    lateinit var formula4: FOLFormula;
     lateinit var arbitraryEquivalence1: ArbitraryPatternBasedRewriter
     lateinit var arbitraryEquivalence2: ArbitraryPatternBasedRewriter
 

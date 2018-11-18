@@ -1,6 +1,6 @@
-package uk.ac.ic.doc.fpn17.equivalences
+package io.github.pirocks.equivalences
 
-import uk.ac.ic.doc.fpn17.logic.*
+import io.github.pirocks.logic.*
 
 
 val availablePropositionalEquivalences = arrayOf(

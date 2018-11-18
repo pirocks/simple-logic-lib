@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.fpn17.nd
 
-import uk.ac.ic.doc.fpn17.logic.*
+import io.github.pirocks.logic.FOLFormula
+import io.github.pirocks.logic.True
 import java.io.Serializable
 import java.util.*
 
@@ -20,7 +21,7 @@ interface NDIntroductionStatement : NDStatement
 interface NDProof {
     val statement: List<NDStatement>
     fun verify()
-    fun isCompleted():True
+    fun isCompleted(): True
 }
 
 interface NDSolver {

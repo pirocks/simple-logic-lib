@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.logic
+package io.github.pirocks.logic
 
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -31,7 +31,7 @@ class QuantifierTest {
         val singleVarPredicateAtomExistsVar = RelationAtom(singleVarRelation, arrayOf(complexExpressionExistsVar))
         val singleVarPredicateAtomForAllVar = RelationAtom(singleVarRelation, arrayOf(complexExpressionForAllVar))
         val doubleVarPredicateAtom = RelationAtom(doubleVarRelation, arrayOf(complexExpressionExistsVar, complexExpressionForAllVar))
-        val complexExpressionPartOne = Exists(IFF(Or(Negation(singleVarPredicateAtomForAllVar), And(singleVarPredicateAtomExistsVar,Negation(False()))), Implies(singleVarPredicateAtomForAllVar, doubleVarPredicateAtom)), complexExpressionExistsVar)
+        val complexExpressionPartOne = Exists(IFF(Or(Negation(singleVarPredicateAtomForAllVar), And(singleVarPredicateAtomExistsVar, Negation(False()))), Implies(singleVarPredicateAtomForAllVar, doubleVarPredicateAtom)), complexExpressionExistsVar)
         val complexExpressionPartTwo = IFF(singleVarPredicateAtomForAllVar, False())
         val complexExpression = ForAll(And(And(complexExpressionPartOne, complexExpressionPartOne), complexExpressionPartTwo), complexExpressionForAllVar)
         multiQuantifier1Var1Var2 = renameVar(renameVar(complexExpression, complexExpressionExistsVar, var1), complexExpressionForAllVar, var2) as ForAll

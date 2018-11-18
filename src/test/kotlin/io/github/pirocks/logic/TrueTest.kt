@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.logic
+package io.github.pirocks.logic
 
 import org.junit.Assert.*
 
@@ -14,15 +14,15 @@ class TrueTest {
 
     @Before
     fun setUp() {
-        val or = Or(True(),True())
-        complex = And(or,or)
+        val or = Or(True(), True())
+        complex = And(or, or)
     }
 
 
 
     @Test
     fun identity(){
-        assertTrue(equalsAndSameAs(`true`,`true`))
+        assertTrue(equalsAndSameAs(`true`, `true`))
     }
 
     @Test
@@ -33,7 +33,7 @@ class TrueTest {
 
     @Test
     fun nestedIdentity(){
-        assertTrue(equalsAndSameAs(complex,complex))
+        assertTrue(equalsAndSameAs(complex, complex))
     }
 
 }

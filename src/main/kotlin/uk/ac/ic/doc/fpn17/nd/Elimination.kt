@@ -1,6 +1,6 @@
 package uk.ac.ic.doc.fpn17.nd
 
-import uk.ac.ic.doc.fpn17.logic.*
+import io.github.pirocks.logic.*
 import java.util.*
 
 
@@ -8,7 +8,7 @@ class ForAllElimination(override val eliminationTarget: NDStatement, val from: V
     override val value: FOLFormula
         get() {
             val targetWithoutForAll = (eliminationTarget.value as ForAll).child;
-            return renameVar(targetWithoutForAll,from, to)
+            return renameVar(targetWithoutForAll, from, to)
         }
 }
 

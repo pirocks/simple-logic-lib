@@ -1,14 +1,14 @@
 package uk.ac.ic.doc.fpn17.nd
 
-import uk.ac.ic.doc.fpn17.logic.*
+import io.github.pirocks.logic.*
 
 /**
  * A for all introduction has a forall const leading to a conclusion. end result removes forall cconst and replaces with general
  * statement
  */
-class ForAllIntroduction(val forAllConst:VariableName, val desiredForAllvar: VariableName, val blockStatement: BlockStatement) : NDIntroductionStatement {
+class ForAllIntroduction(val forAllConst: VariableName, val desiredForAllvar: VariableName, val blockStatement: BlockStatement) : NDIntroductionStatement {
     override val value: FOLFormula
-        get() = ForAll(renameVar(blockStatement.value,forAllConst,desiredForAllvar), desiredForAllvar)
+        get() = ForAll(renameVar(blockStatement.value, forAllConst, desiredForAllvar), desiredForAllvar)
 }
 
 /**
@@ -18,7 +18,7 @@ class ForAllIntroduction(val forAllConst:VariableName, val desiredForAllvar: Var
  */
 class ExistsIntroduction(val existsVarCurrent: VariableName, val desiredExistsvar: VariableName, val targetStatement: NDStatement) : NDIntroductionStatement {
     override val value: FOLFormula
-        get() = Exists(renameVar(targetStatement.value,existsVarCurrent,desiredExistsvar), desiredExistsvar)
+        get() = Exists(renameVar(targetStatement.value, existsVarCurrent, desiredExistsvar), desiredExistsvar)
 }
 
 class AndIntroduction(val left: NDStatement, val right: NDStatement) : NDIntroductionStatement {

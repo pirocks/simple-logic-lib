@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.logic
+package io.github.pirocks.logic
 
 import org.junit.Assert.*
 

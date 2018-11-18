@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.fpn17.logic
+package io.github.pirocks.logic
 
 abstract class RewritingVisitor() {
 
@@ -14,7 +14,7 @@ abstract class RewritingVisitor() {
         }
     }
 
-    open fun rewritePatternMember(original: PatternMember): FOLFormula{
+    open fun rewritePatternMember(original: PatternMember): FOLFormula {
         return when(original) {
             is AllowAllVars -> rewriteAllowAllVars(original)
             is AllowOnlyCertainVars -> rewriteAllowOnlyCertainVars(original)
@@ -37,10 +37,10 @@ abstract class RewritingVisitor() {
     /**
      * parameters only included for consistency. Shouldn't actually be necessary
      */
-    open fun rewriteTrue(toRewrite:True):FOLFormula = True()
-    open fun rewriteFalse(toRewrite:False):FOLFormula = False()
+    open fun rewriteTrue(toRewrite: True): FOLFormula = True()
+    open fun rewriteFalse(toRewrite: False): FOLFormula = False()
 
-    open fun rewriteBinaryRelation(toRewrite: BinaryRelation):FOLFormula{
+    open fun rewriteBinaryRelation(toRewrite: BinaryRelation): FOLFormula {
         return when(toRewrite){
             is And -> rewriteAnd(toRewrite)
             is Or -> rewriteOr(toRewrite)
@@ -49,7 +49,7 @@ abstract class RewritingVisitor() {
         }
     }
 
-    open fun rewriteQuantifier(toRewrite:Quantifier):FOLFormula{
+    open fun rewriteQuantifier(toRewrite: Quantifier): FOLFormula {
         return when(toRewrite){
             is ForAll -> rewriteForAll(toRewrite)
             is Exists -> rewriteExists(toRewrite)
