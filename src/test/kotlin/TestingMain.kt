@@ -1,4 +1,3 @@
-package io.github.pirocks
 import io.github.pirocks.logic.*
 
 

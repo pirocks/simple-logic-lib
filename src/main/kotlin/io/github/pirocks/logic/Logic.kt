@@ -6,6 +6,7 @@ import java.io.Serializable
 import java.util.*
 
 /**
+ * todo to mathml needs testing
  * todo, maybe remove name index. seems unnecessarily complex
  */
 val nameIndex: MutableMap<UUID, String> = mutableMapOf()
