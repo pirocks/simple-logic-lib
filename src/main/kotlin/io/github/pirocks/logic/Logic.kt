@@ -4,6 +4,7 @@ import io.github.pirocks.equivalences.MatchSubstitutions
 import io.github.pirocks.util.UUIDUtil
 import java.io.Serializable
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * todo to mathml needs testing
@@ -35,25 +36,12 @@ interface FOLPattern: Formula {
 
 data class SignatureElement(val uuid: UUID)
 data class VariableValue(val variableName: VariableName, val value: SignatureElement)
-class VariableName : Serializable {
+class VariableName(val uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" + varCount.getAndIncrement().toString()) : Serializable {
     companion object {
-
         @JvmStatic
-        private var varCount = 0;
-
-        public fun getAndIncrementPredicateCount(): Int {
-            varCount++;
-            return varCount - 1;
-        }
+        private var varCount = AtomicInteger(0);
     }
 
-
-    val uuid: UUID
-
-    constructor(uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" + getAndIncrementPredicateCount().toString()) {
-        this.uuid = uuid;
-        nameIndex[uuid] = name;
-    }
 
     val name: String
         get() = nameIndex[uuid]!!
@@ -69,6 +57,10 @@ class VariableName : Serializable {
 
     override fun hashCode(): Int {
         return uuid.hashCode()
+    }
+
+    init {
+        nameIndex[uuid] = name
     }
 
 
