@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>uk.ac.ic.doc.fpn17</groupId>
+    <groupId>io.github.pirocks</groupId>
     <artifactId>nd-thing</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.6-SNAPSHOT</version>
 
     <properties>
         <kotlin.version>1.2.70</kotlin.version>
@@ -35,6 +35,16 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+            <plugin>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>3.0.0</version>
                 <executions>
@@ -61,7 +71,7 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.7</version>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,6 +1,5 @@
 package io.github.pirocks.logic
 
-import org.junit.Assert
 import org.junit.Assert.*
 
 import org.junit.Before

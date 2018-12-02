@@ -1,27 +1,45 @@
 package io.github.pirocks.nd
 
 import io.github.pirocks.logic.FOLFormula
-import io.github.pirocks.logic.True
 import java.io.Serializable
 import java.util.*
 
 data class Problem(val givens: Set<FOLFormula>, val toProve: FOLFormula)
 
-@Suppress("RedundantModalityModifier")
 interface NDStatement : Serializable {
-    abstract val value: FOLFormula
+    val proves: FOLFormula
+    val uses : Set<NDStatement>
+    val scope: Scope
 }
 
-@Suppress("RedundantModalityModifier")
 interface NDEliminationStatement : NDStatement {
-    abstract val eliminationTarget: NDStatement
+    val eliminationTarget: NDStatement
 }
 interface NDIntroductionStatement : NDStatement
 
-interface NDProof {
-    val statement: List<NDStatement>
-    fun verify()
-    fun isCompleted(): True
+class NDProof(override val uses: Set<NDStatement>) : NDStatement{
+    override val scope: Scope
+        get() = baseScope
+    override val proves: FOLFormula
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+    val baseScope = Scope(emptyList(),this)
+
+    open fun verify(): Boolean = TODO()
+
+}
+class Scope internal constructor(val location : List<Int>, internal val proof: NDProof){
+    val subScopes: List<Scope> = mutableListOf()
+    fun isAccessible(toCheck:Scope): Boolean {
+        return toCheck.location.zip(location).all {(toCheckSubScope,thisSubscope)-> toCheckSubScope == thisSubscope }//todo check
+    }
+    companion object {
+        fun getNewChildScope(scope: Scope) {
+
+            scope.proof.scope
+        }
+
+    }
+
 }
 
 interface NDSolver {
@@ -29,18 +47,15 @@ interface NDSolver {
     fun solve(): NDProof
 }
 
-class GivenStatement(override val value: FOLFormula) : NDStatement
-class AssumptionStatement(override val value: FOLFormula) : NDStatement
-class UnknownBlockStatement() : BlockStatement(listOf()){
-    override val children = LinkedList<NDStatement>()
-
-}//filler statement for init//todo really this should be abstract and have an equivalent version for each rule, as to allow for skeleton construction
-open class BlockStatement(open val children: List<NDStatement>) : NDStatement {
-    override val value: FOLFormula
-        get() = children.last().value
+class GivenStatement(override val proves: FOLFormula) : NDStatement {
+    override val uses: Set<NDStatement>
+        get() = emptySet()
 }
-//class NegationElimination(override val eliminationTarget: NDStatement) : NDEliminationStatement //covered by falsity introduction
-//class TruthElimination : NDEliminationStatement//nop
+
+class AssumptionStatement(override val proves: FOLFormula) : NDStatement {
+    override val uses: Set<NDStatement>
+        get() = emptySet()
+}
 
 data class Known(val inProof:Boolean, val statement: NDStatement)
 
@@ -65,10 +80,10 @@ class BruteForceSolver(override val problem: Problem) : NDSolver {
      *
      */
     override fun solve(): NDProof {
-        val proof = UnknownBlockStatement();
-        problem.givens.forEach { proof.children.add(GivenStatement(it)) }
-        val givensAsKnowns = mutableListOf<Known>()
-        proof.children.forEach { givensAsKnowns.add(Known(true, it)) }
+//        val proof = UnknownBlockStatement();
+//        problem.givens.forEach { proof.children.add(GivenStatement(it)) }
+//        val givensAsKnowns = mutableListOf<Known>()
+//        proof.children.forEach { givensAsKnowns.add(Known(true, it)) }
         TODO()
     }
 
