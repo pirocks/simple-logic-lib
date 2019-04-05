@@ -34,7 +34,7 @@ class AndIntroduction(val left: NDStatement, val right: NDStatement) : NDIntrodu
     }
 }
 
-class OrIntroductionLeft(val left: NDStatement, val right: FOLFormula) : NDIntroductionStatement {
+class OrIntroductionRight(val left: NDStatement, val right: FOLFormula) : NDIntroductionStatement {
     override fun verify(given: Set<FOLFormula>): Boolean {
         return left.proves in given
     }
@@ -43,7 +43,7 @@ class OrIntroductionLeft(val left: NDStatement, val right: FOLFormula) : NDIntro
         get() = Or(left.proves,right)
 }
 
-class OrIntroductionRight(val left: FOLFormula, val right: NDStatement) : NDIntroductionStatement {
+class OrIntroductionLeft(val left: FOLFormula, val right: NDStatement) : NDIntroductionStatement {
     override fun verify(given: Set<FOLFormula>): Boolean {
         return right.proves in given
     }
@@ -52,17 +52,17 @@ class OrIntroductionRight(val left: FOLFormula, val right: NDStatement) : NDIntr
         get() = Or(left,right.proves)
 }
 
-class ImpliesIntroduction(val intros: List<NDStatement>) : NDIntroductionStatement {
+class ImpliesIntroduction(val assumption: AssumptionStatement, val steps: List<NDStatement>) : NDIntroductionStatement {
     override fun verify(given: Set<FOLFormula>): Boolean {
-        val assumption: AssumptionStatement = intros.firstOrNull() as? AssumptionStatement ?: return false
-        val result = intros.lastOrNull() ?: return false
+        val assumption: AssumptionStatement = steps.firstOrNull() as? AssumptionStatement ?: return false
+        val result = steps.lastOrNull() ?: return false
         //todo recurse down
 
         return true
     }
 
     override val proves: Implies
-        get() = Implies(intros.first().proves, intros.last().proves)
+        get() = Implies(steps.first().proves, steps.last().proves)
 }
 
 class AssumptionStatement(val assumption: FOLFormula) : NDIntroductionStatement {
@@ -75,18 +75,29 @@ class AssumptionStatement(val assumption: FOLFormula) : NDIntroductionStatement 
 }
 
 
-//class IFFIntroduction() : NDIntroductionStatement {
-//}
-
-class NegationIntroduction(val intros: List<NDStatement>) : NDIntroductionStatement {
+class IFFIntroduction(val leftImplies: NDStatement, val rightImplies: NDStatement) : NDIntroductionStatement {
     override fun verify(given: Set<FOLFormula>): Boolean {
-        val proves = (intros.firstOrNull()?.proves as? Not ?: return false).child
-        //todo recurse
-        return intros.lastOrNull()?.proves is False
+        val leftGiven = (leftImplies.proves as? Implies)?.given ?: return false
+        val rightGiven = (rightImplies.proves as? Implies)?.given ?: return false
+        val leftResult = (leftImplies.proves as? Implies)?.result ?: return false
+        val rightResult = (rightImplies.proves as? Implies)?.result ?: return false
+        return leftGiven == rightResult && leftResult == rightGiven
     }
 
     override val proves: FOLFormula
-        get() = (intros.first().proves as Not).child
+        get() = IFF((leftImplies.proves as Implies).given, (leftImplies.proves as Implies).result)
+
+}
+
+class NegationIntroduction(val assumption: AssumptionStatement, val steps: List<NDStatement>) : NDIntroductionStatement {
+    override fun verify(given: Set<FOLFormula>): Boolean {
+        val proves = steps.firstOrNull()?.proves
+        //todo recurse
+        return steps.lastOrNull()?.proves is False
+    }
+
+    override val proves: FOLFormula
+        get() = Not(steps.first().proves)
 }
 
 class TruthIntroduction : NDIntroductionStatement {
