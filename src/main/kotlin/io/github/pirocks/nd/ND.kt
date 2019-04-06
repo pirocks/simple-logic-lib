@@ -32,6 +32,9 @@ class VerifierContext(private val alreadyVerified: MutableSet<NDStatement>) {
     }
 }
 
+class MalformedProofException(msg: String) : Exception(msg)
+
+
 class NDProof(val statements: List<NDStatement>, val given: Set<FOLFormula>, val result: FOLFormula) {
     fun verify(): Boolean {
         val context = VerifierContext(mutableSetOf())

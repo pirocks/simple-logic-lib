@@ -34,11 +34,22 @@ class AndEliminationRight(val target: NDStatement) : NDEliminationStatement() {
         return context.known(target)
     }
 
-    override val proves: FOLFormula = (target.proves as And).left
+    override val proves: FOLFormula
+
+    init {
+        if (target.proves !is And) {
+            throw MalformedProofException("Cannot And eliminate on an expression which is not And")
+        }
+        proves = (target.proves as And).left
+    }
 }
 
 class OrElimination(val target: NDStatement, val left: NDStatement, val right: NDStatement) : NDEliminationStatement() {
     override fun verify(context: VerifierContext): Boolean {
+        return verifyMatching() && context.known(left) && context.known(right)
+    }
+
+    private fun verifyMatching(): Boolean {
         val leftInputOr = (target.proves as? Or)?.left
         val rightInputOr = (target.proves as? Or)?.right
         val leftOutputOr = (left.proves as? Implies)?.result
@@ -57,7 +68,13 @@ class OrElimination(val target: NDStatement, val left: NDStatement, val right: N
     }
 
     override val proves: FOLFormula
-        get() = Or(left.proves, right.proves)
+
+    init {
+        if (!verifyMatching()) {
+            throw MalformedProofException("Tried to or eliminate non-matching expressions.")
+        }
+        proves = left.proves
+    }
 }
 
 /**
@@ -73,7 +90,13 @@ class ImpliesElimination(val eliminationTarget: NDStatement, val impliesStatemen
     }
 
     override val proves: FOLFormula
-        get() = (impliesStatement.proves as Implies).left
+
+    init {
+        if (impliesStatement.proves !is Implies) {
+            throw MalformedProofException("Implies Elimination was passed something other than an implies")
+        }
+        proves = (impliesStatement.proves as Implies).left
+    }
 }
 
 
@@ -88,8 +111,13 @@ class IFFEliminationLeft(val eliminationTarget: NDStatement, val iffStatement: N
     }
 
     override val proves: FOLFormula
-        get() = (iffStatement.proves as IFF).right
 
+    init {
+        if (iffStatement.proves !is IFF) {
+            throw MalformedProofException("IFF Elimination got something that was not an IFF")
+        }
+        proves = (iffStatement.proves as IFF).right
+    }
 }
 
 /**
@@ -105,7 +133,14 @@ class IFFEliminationRight(val eliminationTarget: NDStatement, val iffStatement: 
     }
 
     override val proves: FOLFormula
-        get() = (iffStatement.proves as IFF).left
+
+
+    init {
+        if (iffStatement.proves !is IFF) {
+            throw MalformedProofException("IFF Elimination got something that was not an IFF")
+        }
+        proves = (iffStatement.proves as IFF).left
+    }
 
 }
 
@@ -115,7 +150,14 @@ class DoubleNegationElimination(val eliminationTarget: NDStatement) : NDEliminat
     }
 
     override val proves: FOLFormula
-        get() = ((eliminationTarget.proves as Not).child as Not).child
+
+
+    init {
+        if ((eliminationTarget.proves as? Not)?.child !is Not) {
+            throw MalformedProofException("Double negation eliminationg got something which wasn't double negated.")
+        }
+        proves = ((eliminationTarget.proves as Not).child as Not).child
+    }
 }
 
 class FalsityElimination(val eliminationTarget: NDStatement, val value: FOLFormula) : NDEliminationStatement() {
@@ -125,4 +167,10 @@ class FalsityElimination(val eliminationTarget: NDStatement, val value: FOLFormu
 
     override val proves: FOLFormula
         get() = value
+
+    init {
+        if (eliminationTarget.proves != False()) {
+            throw MalformedProofException("Falisty elimination didn't get a False.")
+        }
+    }
 }

@@ -58,7 +58,13 @@ class ImpliesIntroduction(val assumption: AssumptionStatement, val steps: List<N
         }.also { context.pop() }
     }
 
-    override val proves: FOLFormula = Implies(assumption.proves, steps.last().proves)
+    override val proves: FOLFormula
+
+    init {
+        val result = steps.lastOrNull()?.proves
+                ?: throw MalformedProofException("Empty proof body for implies introduction")
+        proves = Implies(assumption.proves, result)
+    }
 }
 
 class AssumptionStatement(val assumption: FOLFormula) : NDIntroductionStatement() {
@@ -72,18 +78,28 @@ class AssumptionStatement(val assumption: FOLFormula) : NDIntroductionStatement(
 
 class IFFIntroduction(val leftImplies: NDStatement, val rightImplies: NDStatement) : NDIntroductionStatement() {
     override fun verify(context: VerifierContext): Boolean {
+        return verifyMatching() &&
+                context.known(leftImplies) &&
+                context.known(rightImplies)
+    }
+
+    private fun verifyMatching(): Boolean {
         val leftGiven = (leftImplies.proves as? Implies)?.given ?: return false
         val rightGiven = (rightImplies.proves as? Implies)?.given ?: return false
         val leftResult = (leftImplies.proves as? Implies)?.result ?: return false
         val rightResult = (rightImplies.proves as? Implies)?.result ?: return false
         return leftGiven == rightResult &&
-                leftResult == rightGiven &&
-                context.known(leftImplies) &&
-                context.known(rightImplies)
+                leftResult == rightGiven
     }
 
-    override val proves: FOLFormula = IFF((leftImplies.proves as Implies).given, (leftImplies.proves as Implies).result)
+    override val proves: FOLFormula
 
+    init {
+        if (!verifyMatching()) throw MalformedProofException("IFF intro incompatible left and right implications ")
+        val leftOfIFF = (leftImplies.proves as Implies).given
+        val rightOfIFF = (leftImplies.proves as Implies).result
+        proves = IFF(leftOfIFF, rightOfIFF)
+    }
 }
 
 class NegationIntroduction(val assumption: AssumptionStatement, val steps: List<NDStatement>) : NDIntroductionStatement() {
@@ -96,7 +112,13 @@ class NegationIntroduction(val assumption: AssumptionStatement, val steps: List<
     }
 
     override val proves: FOLFormula
-        get() = Not(steps.first().proves)
+
+    init {
+        if (steps.isEmpty()) {
+            throw MalformedProofException("Negation introduction received empty proof body")
+        }
+        proves = Not(assumption.proves)
+    }
 }
 
 class TruthIntroduction : NDIntroductionStatement() {
