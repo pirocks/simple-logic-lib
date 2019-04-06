@@ -105,23 +105,16 @@ class EvalContext(val signature: Signature, val variables: MutableMap<VariableNa
 
 sealed class FOLFormula : Formula, FOLPattern {
 
-    @Deprecated("Equals should now be used instead of sameAs", ReplaceWith(".equals()" ))
-    open fun sameAs(other: FOLFormula): Boolean {
+    internal open fun sameAs(other: FOLFormula): Boolean {
         return sameAsImpl(other, EqualityContext())
     }
 
-    @Deprecated("Equals should now be used instead of sameAs")
-    open fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
+    internal open fun sameAsImpl(other: FOLFormula, equalityContext: EqualityContext): Boolean {
         //by default if subformulas are equivalent then these are equivalent.
         if (javaClass != other.javaClass || subFormulas.size != other.subFormulas.size) {
             return false
         }
-        for (i in 0 until subFormulas.size) {
-            if (!subFormulas[i].sameAsImpl(other.subFormulas[i], equalityContext)) {
-                return false
-            }
-        }
-        return true
+        return subFormulas.zip(other.subFormulas).all { it.first.sameAsImpl(it.second, equalityContext) }
     }
 
     abstract fun evaluate(ev: EvalContext): Boolean

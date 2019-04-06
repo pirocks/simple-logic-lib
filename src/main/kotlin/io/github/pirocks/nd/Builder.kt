@@ -12,6 +12,7 @@ fun proof(givens: Set<FOLFormula> = emptySet(), result: FOLFormula, init: Mutabl
 fun MutableList<NDStatement>.implies(assumptionStatement: AssumptionStatement, init: MutableList<NDStatement>.(assumption: NDStatement) -> Unit): ImpliesIntroduction {
     val statements = mutableListOf<NDStatement>()
     statements.init(assumptionStatement)
+    assert(statements.isNotEmpty())
     val implication = ImpliesIntroduction(assumptionStatement, statements)
     add(implication)
     return implication
