@@ -39,7 +39,7 @@ class NDProof(val statements: List<NDStatement>, val given: Set<FOLFormula>, val
     fun verify(): Boolean {
         val context = VerifierContext(mutableSetOf())
         context.push()
-        return statements.all { it.verify(context) }
+        return statements.all { context.verify(it) }
                 && statements.lastOrNull()?.proves == result
     }
 }

@@ -160,13 +160,12 @@ class DoubleNegationElimination(val eliminationTarget: NDStatement) : NDEliminat
     }
 }
 
-class FalsityElimination(val eliminationTarget: NDStatement, val value: FOLFormula) : NDEliminationStatement() {
+class FalsityElimination(val eliminationTarget: NDStatement, val to: FOLFormula) : NDEliminationStatement() {
     override fun verify(context: VerifierContext): Boolean {
         return eliminationTarget.proves == False() && context.known(eliminationTarget)
     }
 
-    override val proves: FOLFormula
-        get() = value
+    override val proves: FOLFormula = to
 
     init {
         if (eliminationTarget.proves != False()) {

@@ -131,11 +131,13 @@ class TruthIntroduction : NDIntroductionStatement() {
 
 class FalseIntroduction(val contradictoryLeft: NDStatement, val contradictoryRight: NDStatement) : NDIntroductionStatement() {
     override fun verify(context: VerifierContext): Boolean {
-        return (contradictoryLeft.proves as? Not)?.child?.let {
+        val leftNegated = (contradictoryLeft.proves as? Not)?.child?.let {
             it == contradictoryRight.proves
-        } ?: (contradictoryRight.proves as? Not)?.child?.let {
+        } ?: false
+        val rightNegated = (contradictoryRight.proves as? Not)?.child?.let {
             it == contradictoryLeft.proves
-        } ?: false && context.known(contradictoryLeft) && context.known(contradictoryRight)
+        } ?: false
+        return (leftNegated || rightNegated) && context.known(contradictoryLeft) && context.known(contradictoryRight)
     }
 
     override val proves: FOLFormula = False()

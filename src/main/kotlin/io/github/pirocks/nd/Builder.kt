@@ -30,19 +30,66 @@ fun MutableList<NDStatement>.andIntro(left: NDStatement, right: NDStatement): An
     return element
 }
 
+fun MutableList<NDStatement>.andElimLeft(target: NDStatement): AndEliminationLeft {
+    val element = AndEliminationLeft(target)
+    add(element)
+    return element
+}
+
+fun MutableList<NDStatement>.andElimRight(target: NDStatement): AndEliminationRight {
+    val element = AndEliminationRight(target)
+    add(target)
+    return element
+}
+
+fun MutableList<NDStatement>.orElim(target: NDStatement, left: NDStatement, right: NDStatement): OrElimination {
+    val element = OrElimination(target, left, right)
+    add(target)
+    return element
+}
+
+fun MutableList<NDStatement>.impliesElim(eliminationTarget: NDStatement, impliesStatement: NDStatement): ImpliesElimination {
+    val element = ImpliesElimination(eliminationTarget, impliesStatement)
+    add(element)
+    return element
+}
+
+fun MutableList<NDStatement>.iffElimLeft(eliminationTarget: NDStatement, iffStatement: NDStatement): IFFEliminationLeft {
+    val element = IFFEliminationLeft(eliminationTarget, iffStatement)
+    add(element)
+    return element
+}
+
+fun MutableList<NDStatement>.iffElimRight(eliminationTarget: NDStatement, iffStatement: NDStatement): IFFEliminationRight {
+    val element = IFFEliminationRight(eliminationTarget, iffStatement)
+    add(element)
+    return element
+}
+
+fun MutableList<NDStatement>.doubleNegElim(eliminationTarget: NDStatement): DoubleNegationElimination {
+    val element = DoubleNegationElimination(eliminationTarget)
+    add(element)
+    return element
+}
+
+fun MutableList<NDStatement>.falsityElim(eliminationTarget: NDStatement, to: FOLFormula): FalsityElimination {
+    val element = FalsityElimination(eliminationTarget, to)
+    add(element)
+    return element
+}
 //fun MutableList<NDStatement>.forAllIntro(){
 //
 //}
 //fun MutableList<NDStatement>.existsIntro(){
 //
 //}
-fun MutableList<NDStatement>.orIntroLeft(left: FOLFormula, right: NDStatement): OrIntroductionLeft {
+fun MutableList<NDStatement>.orIntro(left: FOLFormula, right: NDStatement): OrIntroductionLeft {
     val element = OrIntroductionLeft(left, right)
     add(element)
     return element
 }
 
-fun MutableList<NDStatement>.orIntroRight(left: NDStatement, right: FOLFormula): OrIntroductionRight {
+fun MutableList<NDStatement>.orIntro(left: NDStatement, right: FOLFormula): OrIntroductionRight {
     val element = OrIntroductionRight(left, right)
     add(element)
     return element
@@ -54,10 +101,10 @@ fun MutableList<NDStatement>.iFFIntro(leftImplication: NDStatement, rightImplica
     return element
 }
 
-fun MutableList<NDStatement>.negationIntro(assumptionStatement: AssumptionStatement, init: MutableList<NDStatement>.(assumption: NDStatement) -> Unit): ImpliesIntroduction {
+fun MutableList<NDStatement>.negationIntro(assumptionStatement: AssumptionStatement, init: MutableList<NDStatement>.(assumption: NDStatement) -> Unit): NegationIntroduction {
     val statements = mutableListOf<NDStatement>()
     statements.init(assumptionStatement)
-    val implication = ImpliesIntroduction(assumptionStatement, statements)
+    val implication = NegationIntroduction(assumptionStatement, statements)
     add(implication)
     return implication
 }
