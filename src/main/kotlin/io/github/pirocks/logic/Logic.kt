@@ -67,7 +67,7 @@ class VariableName(val uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" 
 }
 
 data class Signature(val elements: Set<SignatureElement>, val relations: Set<Relation>)
-class Relation {
+class Relation(val implmentation: (Array<VariableValue>) -> Boolean, val uuid: UUID = UUIDUtil.generateUUID(), name: String = "P" + getAndIncrementPredicateCount().toString()) {
     companion object {
         @JvmStatic
         private var predicateCount = 0;
@@ -76,16 +76,16 @@ class Relation {
             predicateCount++;
             return predicateCount - 1;
         }
+
+        fun newUnEvaluatableRelation(): Relation {
+            return Relation({ throw Exception("This relation cannot be evaluated.") })
+        }
     }
 
-    val implmentation: (Array<VariableValue>) -> Boolean
-    val uuid: UUID
     val name: String
         get() = nameIndex[uuid]!!
 
-    constructor(implmentation: (Array<VariableValue>) -> Boolean, uuid: UUID = UUIDUtil.generateUUID(), name: String = "P" + getAndIncrementPredicateCount().toString()) {
-        this.implmentation = implmentation
-        this.uuid = uuid
+    init {
         nameIndex[uuid] = name
     }
 
@@ -253,6 +253,13 @@ class False : FOLFormula() {
 }
 
 open class RelationAtom(val relation: Relation, val expectedArgs: Array<VariableName>) : FOLFormula() {
+
+    companion object {
+        fun newSimpleAtom(): RelationAtom {
+            return RelationAtom(Relation({ throw Exception("Simple Atoms can't be evaluated") }), emptyArray())
+        }
+    }
+
     override fun hashCodeImpl(hashContext: HashContext): Int {
         var hash = relation.uuid.hashCode()
         expectedArgs.forEach {

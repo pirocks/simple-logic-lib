@@ -34,7 +34,7 @@ class BasicPropNDTest {
 }
 
 class LEMProof {
-    val p = RelationAtom(Relation({ TODO() }), arrayOf())
+    val p = RelationAtom.newSimpleAtom()
     val toProve: FOLFormula = p or not(p)
     val proof = proof(emptySet(), toProve) {
         val notNotToProve = negationIntro(assume(not(toProve))) { notToProve ->

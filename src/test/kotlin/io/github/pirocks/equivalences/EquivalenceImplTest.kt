@@ -25,8 +25,8 @@ class PropositionalEquivalenceImplTest {
 
     @Before
     fun setUp() {
-        relation1 = RelationAtom(Relation({ false }), arrayOf())
-        relation2 = RelationAtom(Relation({ false }), arrayOf())
+        relation1 = RelationAtom.newSimpleAtom()
+        relation2 = RelationAtom.newSimpleAtom()
         formula1 = And(Or(And(True(), relation1), False()), Or(And(True(), relation1), True()))
         formula2 = Implies(And(False(), relation2), And(True(), Or(relation2, False())))
         formula3 = Implies(formula1, formula2)
@@ -108,7 +108,7 @@ class MultipleSamePatternsTest{
 }
 
 class FOLEquivalenceTest{
-    val alwaysFalsePredicate = Relation({ false })
+    val alwaysFalsePredicate = Relation.newUnEvaluatableRelation()
     lateinit var formula1: FOLFormula;
     lateinit var formula2: FOLFormula;
     lateinit var formula3: FOLFormula;

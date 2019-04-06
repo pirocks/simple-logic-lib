@@ -95,7 +95,9 @@ class IFFIntroduction(val leftImplies: NDStatement, val rightImplies: NDStatemen
     override val proves: FOLFormula
 
     init {
-        if (!verifyMatching()) throw MalformedProofException("IFF intro incompatible left and right implications ")
+        if (!verifyMatching()) {
+            throw MalformedProofException("IFF intro incompatible left and right implications ")
+        }
         val leftOfIFF = (leftImplies.proves as Implies).given
         val rightOfIFF = (leftImplies.proves as Implies).result
         proves = IFF(leftOfIFF, rightOfIFF)
