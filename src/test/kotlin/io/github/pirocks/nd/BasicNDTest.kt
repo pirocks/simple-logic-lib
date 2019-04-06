@@ -7,13 +7,13 @@ import org.junit.Test
 
 class BasicPropNDTest {
     lateinit var toProve: FOLFormula
-    lateinit var ndProof: NDProof
+    lateinit var basicNDProof: NDProof
     @Before
     fun setUp() {
         toProve = True() and (False() or (False() implies True())) iff True()
-        ndProof = proof(emptySet(), toProve) {
+        basicNDProof = proof(emptySet(), toProve) {
             val trueIntro = trueIntro()
-            val orIntroLeft = orIntroLeft(False(), implies(assume(False())) {
+            val orIntroLeft = orIntro(False(), implies(assume(False())) {
                 trueIntro()
             })
             val lhs = andIntro(trueIntro, orIntroLeft)
@@ -29,6 +29,27 @@ class BasicPropNDTest {
 
     @Test
     fun doTest() {
-        Assert.assertTrue(ndProof.verify())
+        Assert.assertTrue(basicNDProof.verify())
     }
 }
+
+class LEMProof {
+    val p = RelationAtom(Relation({ TODO() }), arrayOf())
+    val toProve: FOLFormula = p or not(p)
+    val proof = proof(emptySet(), toProve) {
+        val notNotToProve = negationIntro(assume(not(toProve))) { notToProve ->
+            val notP = negationIntro(assume(p)) { assumption ->
+                falseIntro(orIntro(assumption, not(p)), notToProve)
+            }
+            falseIntro(orIntro(p, notP), notToProve)
+        }
+        doubleNegElim(notNotToProve)
+    }
+
+    @Test
+    fun doTest() {
+        val res = proof.verify()
+        Assert.assertTrue(res)
+    }
+}
+
