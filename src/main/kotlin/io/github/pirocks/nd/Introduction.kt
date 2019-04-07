@@ -5,25 +5,42 @@ import io.github.pirocks.logic.*
 
 abstract class NDIntroductionStatement : NDStatementBase()
 
-///**
-// * A for all introduction has a forall const leading to a conclusion. end result removes forall cconst and replaces with general
-// * statement
-// */
-//class ForAllIntroduction(val forAllVar : VariableName, val body: List<NDStatement>) : NDIntroductionStatement {
-//    override fun verify(given: Set<FOLFormula>): Boolean {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//
-//    init {
-//        if(body.isEmpty()){
-//            throw IllegalArgumentException("requires at least one statement in body")
-//        }
-//    }
-//}
+/**
+ * A for all introduction has a forall const leading to a conclusion. end result removes forall cconst and replaces with general
+ * statement
+ */
+class ForAllIntroduction(val forAllConst: VariableName, val body: List<NDStatement>) : NDIntroductionStatement() {
+    override fun verify(context: VerifierContext): Boolean {
+        context.push()
+        return body.all {
+            context.verify(it)
+        }.also {
+            context.pop()
+        }
+    }
 
-//class ExistsIntroduction() : NDIntroductionStatement {
-//
-//}
+    override val proves: FOLFormula
+
+    init {
+        if (body.isEmpty()) {
+            throw IllegalArgumentException("ForAll Introduction requires at least one statement in body")
+        }
+        proves = ForAll(body.last().proves, forAllConst)
+    }
+}
+
+class ExistsIntroduction(val specificExample: NDStatement, val varToTarget: VariableName) : NDIntroductionStatement() {
+    override fun verify(context: VerifierContext): Boolean {
+        return context.known(specificExample)
+    }
+
+    override val proves: FOLFormula
+
+    init {
+        val boundVar = VariableName()
+        proves = Exists(renameVar(specificExample.proves, varToTarget, boundVar), boundVar)
+    }
+}
 
 class AndIntroduction(val left: NDStatement, val right: NDStatement) : NDIntroductionStatement() {
     override val proves: FOLFormula = And(left.proves, right.proves)

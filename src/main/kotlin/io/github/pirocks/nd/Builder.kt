@@ -6,7 +6,8 @@ import io.github.pirocks.logic.True
 fun proof(givens: Set<FOLFormula> = emptySet(), result: FOLFormula, init: MutableList<NDStatement>.() -> Unit): NDProof {
     val statements = mutableListOf<NDStatement>()
     statements.init()
-    return NDProof(statements, givens, result)
+    val res = NDProof(statements, givens, result)
+    return res
 }
 
 fun MutableList<NDStatement>.implies(assumptionStatement: AssumptionStatement, init: MutableList<NDStatement>.(assumption: NDStatement) -> Unit): ImpliesIntroduction {

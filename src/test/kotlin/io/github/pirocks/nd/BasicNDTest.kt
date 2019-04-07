@@ -10,7 +10,8 @@ class BasicPropNDTest {
     lateinit var basicNDProof: NDProof
     @Before
     fun setUp() {
-        toProve = True() and (False() or (False() implies True())) iff True()
+        val subToProof = True() and (False() or (False() implies True()))
+        toProve = subToProof iff True()
         basicNDProof = proof(emptySet(), toProve) {
             val trueIntro = trueIntro()
             val orIntroLeft = orIntro(False(), implies(assume(False())) {
@@ -20,10 +21,11 @@ class BasicPropNDTest {
             val impliesOne = implies(assume(True())) {
                 idIntro(lhs)
             }
-            val impliesTwo = implies(assume(toProve)) {
+            assert(lhs.proves == subToProof)
+            val impliesTwo = implies(assume(subToProof)) {
                 trueIntro()
             }
-            iFFIntro(impliesOne, impliesTwo)
+            iFFIntro(impliesTwo, impliesOne)
         }
     }
 

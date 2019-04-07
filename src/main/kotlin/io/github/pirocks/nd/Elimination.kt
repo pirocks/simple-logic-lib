@@ -5,21 +5,51 @@ import io.github.pirocks.logic.*
 
 abstract class NDEliminationStatement : NDStatementBase()
 
-//class ForAllElimination(override val eliminationTarget: NDStatement, val from: VariableName, val to: VariableName) : NDEliminationStatement() {
-//    override val value: FOLFormula
-//        get() {
-//            val targetWithoutForAll = (eliminationTarget.value as ForAll).child;
-//            return renameVar(targetWithoutForAll, from, to)
-//        }
-//}
-//
-///**todo
-// * add assumption var/interface, can also allow for customizing of rendering
-// */
-//class ExistsElimination(override val eliminationTarget: NDStatement, val skolemConstant: UUID, val children: List<NDStatement>) : NDEliminationStatement() {
-//    override val value: FOLFormula
-//        get() = children.last().value
-//}
+class ForAllElimination(val eliminationTarget: NDStatement, val to: VariableName) : NDEliminationStatement() {
+    override fun verify(context: VerifierContext): Boolean {
+        return context.known(eliminationTarget)
+    }
+
+    override val proves: FOLFormula
+
+    init {
+        val forAll = eliminationTarget.proves as? ForAll
+                ?: throw MalformedProofException("Can't perform ForAll elimination on something that isn't a ForAll expression")
+        proves = renameVar(forAll.child, forAll.varName, to)
+    }
+
+}
+
+/**
+ * add assumption var/interface, can also allow for customizing of rendering
+ * todo add additional verification that skolem constants are not used improperly
+ */
+class ExistsElimination(val eliminationTarget: NDStatement, val children: List<NDStatement>) : NDEliminationStatement() {
+    val skolemConstant: VariableName = VariableName()
+    val skolemConstantExpression: AssumptionStatement
+    override fun verify(context: VerifierContext): Boolean {
+        context.push()
+        context.assume(skolemConstantExpression)
+        return children.all {
+            context.verify(it)
+        }.also {
+            context.pop()
+        }
+    }
+
+    override val proves: FOLFormula
+
+    init {
+        val exists = (eliminationTarget.proves as? Exists)
+                ?: throw MalformedProofException("Can't perform Exists elimination on something that isn't a Exists expression")
+        skolemConstantExpression = assume(renameVar(exists.child, exists.varName, skolemConstant))
+        proves = children.lastOrNull()?.proves
+                ?: throw MalformedProofException("Expected non-zero amount of statements in Exists Elimination")
+        if (containsVar(proves, skolemConstant)) {
+            throw MalformedProofException("Skolem constants are not allowed to Exists Elimination.")
+        }
+    }
+}
 
 class AndEliminationLeft(val target: NDStatement) : NDEliminationStatement() {
     override fun verify(context: VerifierContext): Boolean {
