@@ -12,7 +12,7 @@ class BasicPropNDTest {
     fun setUp() {
         val subToProof = True() and (False() or (False() implies True()))
         toProve = subToProof iff True()
-        basicNDProof = proof(emptySet(), toProve) {
+        basicNDProof = proof(toProve) {
             val trueIntro = trueIntro()
             val orIntroLeft = orIntro(False(), implies(assume(False())) {
                 trueIntro()
@@ -38,7 +38,7 @@ class BasicPropNDTest {
 class LEMProof {
     val p = PredicateAtom.newSimpleAtom()
     val toProve: FOLFormula = p or not(p)
-    val proof = proof(emptySet(), toProve) {
+    val proof = proof(toProve) {
         val notNotToProve = negationIntro(assume(not(toProve))) { notToProve ->
             val notP = negationIntro(assume(p)) { assumption ->
                 falseIntro(orIntro(assumption, not(p)), notToProve)
@@ -62,7 +62,7 @@ class TestWithLotsOfElim {
     val andBlock = a and (((True() iff b) iff True()) and c)
     val given = True() implies (andBlock or False())
     val toProof = b
-    val proof = io.github.pirocks.nd.proof(setOf(given), toProof) {
+    val proof = io.github.pirocks.nd.proof(toProof, setOf(given)) {
         val givenStatement = given(given)
         val truth = trueIntro()
         val orExpr = impliesElim(truth, givenStatement)

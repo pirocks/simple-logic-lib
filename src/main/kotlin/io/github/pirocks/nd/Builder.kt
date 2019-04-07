@@ -3,10 +3,14 @@ package io.github.pirocks.nd
 import io.github.pirocks.logic.FOLFormula
 import io.github.pirocks.logic.VariableName
 
-fun proof(givens: Set<FOLFormula> = emptySet(), result: FOLFormula, init: MutableList<NDStatement>.() -> Unit): NDProof {
+fun proof(result: FOLFormula, givens: Set<FOLFormula> = emptySet(), verify: Boolean = false, init: MutableList<NDStatement>.() -> Unit): NDProof {
     val statements = mutableListOf<NDStatement>()
     statements.init()
-    return NDProof(statements, givens.map { GivenStatement(it) }.toMutableSet(), result)
+    val res = NDProof(statements, givens.map { GivenStatement(it) }.toMutableSet(), result)
+    if (verify && !res.verify()) {
+        throw MalformedProofException("Proof failed to verify")
+    }
+    return res
 }
 
 fun MutableList<NDStatement>.implies(assumptionStatement: AssumptionStatement, init: MutableList<NDStatement>.(assumption: NDStatement) -> Unit): ImpliesIntroduction {
