@@ -6,7 +6,7 @@ import io.github.pirocks.logic.VariableName
 fun proof(givens: Set<FOLFormula> = emptySet(), result: FOLFormula, init: MutableList<NDStatement>.() -> Unit): NDProof {
     val statements = mutableListOf<NDStatement>()
     statements.init()
-    val res = NDProof(statements, givens, result)
+    val res = NDProof(statements, givens.map { GivenStatement(it) }.toMutableSet(), result)
     return res
 }
 
@@ -39,13 +39,13 @@ fun MutableList<NDStatement>.andElimLeft(target: NDStatement): AndEliminationLef
 
 fun MutableList<NDStatement>.andElimRight(target: NDStatement): AndEliminationRight {
     val element = AndEliminationRight(target)
-    add(target)
+    add(element)
     return element
 }
 
 fun MutableList<NDStatement>.orElim(target: NDStatement, left: NDStatement, right: NDStatement): OrElimination {
     val element = OrElimination(target, left, right)
-    add(target)
+    add(element)
     return element
 }
 
@@ -150,4 +150,8 @@ fun MutableList<NDStatement>.forAllElim(target: NDStatement, to: VariableName): 
     val elem = ForAllElimination(target, to)
     add(elem)
     return elem
+}
+
+fun given(folFormula: FOLFormula): GivenStatement {
+    return GivenStatement(folFormula)
 }

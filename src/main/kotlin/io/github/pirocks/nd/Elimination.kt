@@ -63,7 +63,14 @@ class AndEliminationLeft(val target: NDStatement) : NDEliminationStatement() {
         return context.known(target)
     }
 
-    override val proves: FOLFormula = (target.proves as And).left
+    override val proves: FOLFormula
+
+    init {
+        if (target.proves !is And) {
+            throw MalformedProofException("Cannot And eliminate on an expression which is not And")
+        }
+        proves = (target.proves as And).left
+    }
 }
 
 class AndEliminationRight(val target: NDStatement) : NDEliminationStatement() {
@@ -77,7 +84,7 @@ class AndEliminationRight(val target: NDStatement) : NDEliminationStatement() {
         if (target.proves !is And) {
             throw MalformedProofException("Cannot And eliminate on an expression which is not And")
         }
-        proves = (target.proves as And).left
+        proves = (target.proves as And).right
     }
 }
 
@@ -108,9 +115,9 @@ class OrElimination(val target: NDStatement, val left: NDStatement, val right: N
 
     init {
         if (!verifyMatching()) {
-            throw MalformedProofException("Tried to or eliminate non-matching expressions.")
+            throw MalformedProofException("Tried to Or-eliminate non-matching expressions.")
         }
-        proves = left.proves
+        proves = (left.proves as Implies).result
     }
 }
 
@@ -121,7 +128,7 @@ class OrElimination(val target: NDStatement, val left: NDStatement, val right: N
  */
 class ImpliesElimination(val eliminationTarget: NDStatement, val impliesStatement: NDStatement) : NDEliminationStatement() {
     override fun verify(context: VerifierContext): Boolean {
-        return (impliesStatement.proves as? Implies)?.left == eliminationTarget &&
+        return (impliesStatement.proves as? Implies)?.given == eliminationTarget.proves &&
                 context.known(impliesStatement) &&
                 context.known(eliminationTarget)
     }
@@ -132,7 +139,7 @@ class ImpliesElimination(val eliminationTarget: NDStatement, val impliesStatemen
         if (impliesStatement.proves !is Implies) {
             throw MalformedProofException("Implies Elimination was passed something other than an implies")
         }
-        proves = (impliesStatement.proves as Implies).left
+        proves = (impliesStatement.proves as Implies).result
     }
 }
 

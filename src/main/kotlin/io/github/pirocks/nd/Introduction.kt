@@ -71,7 +71,7 @@ class ImpliesIntroduction(val assumption: AssumptionStatement, val steps: List<N
         context.push()
         context.assume(assumption)
         return steps.all {
-            it.verify(context)
+            context.verify(it)
         }.also { context.pop() }
     }
 

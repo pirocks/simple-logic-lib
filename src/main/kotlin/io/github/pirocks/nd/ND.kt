@@ -3,31 +3,28 @@ package io.github.pirocks.nd
 import io.github.pirocks.logic.FOLFormula
 import java.util.*
 
-class VerifierContext(private val alreadyVerified: MutableSet<NDStatement>) {
-    private val toRemoveStack: Stack<MutableSet<NDStatement>> = Stack()
+//todo could be faster b/c iterating through stack
+class VerifierContext(private val alreadyVerified: Stack<MutableSet<NDStatement>>) {
 
     fun known(ndStatement: NDStatement): Boolean {
-        return ndStatement in alreadyVerified
+        return alreadyVerified.any { ndStatement in it }
     }
 
     fun assume(assumption: AssumptionStatement) {
-        alreadyVerified.add(assumption)
-        toRemoveStack.peek().add(assumption)
+        alreadyVerified.peek().add(assumption)
     }
 
     fun push() {
-        toRemoveStack.push(mutableSetOf())
+        alreadyVerified.push(mutableSetOf())
     }
 
     fun pop() {
-        val toRemove = toRemoveStack.pop()
-        alreadyVerified.removeAll(toRemove)
+        alreadyVerified.pop()
     }
 
     fun verify(ndStatement: NDStatement): Boolean {
         val res = ndStatement.verify(this)
-        alreadyVerified.add(ndStatement)
-        toRemoveStack.peek().add(ndStatement)
+        alreadyVerified.peek().add(ndStatement)
         return res
     }
 }
@@ -35,10 +32,11 @@ class VerifierContext(private val alreadyVerified: MutableSet<NDStatement>) {
 class MalformedProofException(msg: String) : Exception(msg)
 
 
-class NDProof(val statements: List<NDStatement>, val given: Set<FOLFormula>, val result: FOLFormula) {
+class NDProof(val statements: List<NDStatement>, val given: Set<GivenStatement>, val result: FOLFormula) {
     fun verify(): Boolean {
-        val context = VerifierContext(mutableSetOf())
-        context.push()
+        val stack = Stack<MutableSet<NDStatement>>()
+        stack.push(given.toMutableSet())
+        val context = VerifierContext(stack)
         return statements.all { context.verify(it) }
                 && statements.lastOrNull()?.proves == result
     }
@@ -63,4 +61,12 @@ abstract class NDStatementBase : NDStatement {
     }
 
     override fun hashCode(): Int = proves.hashCode()
+}
+
+class GivenStatement(val given: FOLFormula) : NDStatementBase() {
+    override fun verify(context: VerifierContext): Boolean {
+        return context.known(this)
+    }
+
+    override val proves: FOLFormula = given
 }
