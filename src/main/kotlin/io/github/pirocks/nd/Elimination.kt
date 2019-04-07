@@ -22,11 +22,11 @@ class ForAllElimination(val eliminationTarget: NDStatement, val to: VariableName
 
 /**
  * add assumption var/interface, can also allow for customizing of rendering
- * todo add additional verification that skolem constants are not used improperly
  */
-class ExistsElimination(val eliminationTarget: NDStatement, val children: List<NDStatement>) : NDEliminationStatement() {
-    val skolemConstant: VariableName = VariableName()
-    val skolemConstantExpression: AssumptionStatement
+class ExistsElimination(val eliminationTarget: NDStatement,
+                        val children: List<NDStatement>,
+                        val skolemConstant: VariableName = VariableName(),
+                        val skolemConstantExpression: AssumptionStatement = calcSkolemConstantExpression(eliminationTarget, skolemConstant)) : NDEliminationStatement() {
     override fun verify(context: VerifierContext): Boolean {
         context.push()
         context.assume(skolemConstantExpression)
@@ -40,14 +40,21 @@ class ExistsElimination(val eliminationTarget: NDStatement, val children: List<N
     override val proves: FOLFormula
 
     init {
-        val exists = (eliminationTarget.proves as? Exists)
-                ?: throw MalformedProofException("Can't perform Exists elimination on something that isn't a Exists expression")
-        skolemConstantExpression = assume(renameVar(exists.child, exists.varName, skolemConstant))
         proves = children.lastOrNull()?.proves
                 ?: throw MalformedProofException("Expected non-zero amount of statements in Exists Elimination")
         if (containsVar(proves, skolemConstant)) {
             throw MalformedProofException("Skolem constants are not allowed to Exists Elimination.")
         }
+    }
+
+    companion object {
+
+        fun calcSkolemConstantExpression(eliminationTarget: NDStatement, skolemConstant: VariableName): AssumptionStatement {
+            val exists = (eliminationTarget.proves as? Exists)
+                    ?: throw IllegalArgumentException("Can't perform Exists elimination on something that isn't a Exists expression")
+            return assume(renameVar(exists.child, exists.varName, skolemConstant))
+        }
+
     }
 }
 

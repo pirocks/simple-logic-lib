@@ -1,7 +1,7 @@
 package io.github.pirocks.nd
 
 import io.github.pirocks.logic.FOLFormula
-import io.github.pirocks.logic.True
+import io.github.pirocks.logic.VariableName
 
 fun proof(givens: Set<FOLFormula> = emptySet(), result: FOLFormula, init: MutableList<NDStatement>.() -> Unit): NDProof {
     val statements = mutableListOf<NDStatement>()
@@ -78,12 +78,7 @@ fun MutableList<NDStatement>.falsityElim(eliminationTarget: NDStatement, to: FOL
     add(element)
     return element
 }
-//fun MutableList<NDStatement>.forAllIntro(){
-//
-//}
-//fun MutableList<NDStatement>.existsIntro(){
-//
-//}
+
 fun MutableList<NDStatement>.orIntro(left: FOLFormula, right: NDStatement): OrIntroductionLeft {
     val element = OrIntroductionLeft(left, right)
     add(element)
@@ -124,4 +119,35 @@ fun MutableList<NDStatement>.idIntro(toCopy: NDStatement): IDIntroduction {
 
 fun assume(formula: FOLFormula): AssumptionStatement {
     return AssumptionStatement(formula)
+}
+
+fun MutableList<NDStatement>.forAllIntro(init: MutableList<NDStatement>.(forAllConst: VariableName) -> Unit): ForAllIntroduction {
+    val statements = mutableListOf<NDStatement>()
+    val forAllConst = VariableName()
+    statements.init(forAllConst)
+    val elem = ForAllIntroduction(forAllConst, statements)
+    add(elem)
+    return elem
+}
+
+fun MutableList<NDStatement>.existsIntro(example: NDStatement, varToTarget: VariableName): ExistsIntroduction {
+    val elem = ExistsIntroduction(example, varToTarget)
+    add(elem)
+    return elem
+}
+
+fun MutableList<NDStatement>.existsElim(target: NDStatement, init: MutableList<NDStatement>.(skolemCons: VariableName, skolemConstExpr: AssumptionStatement) -> Unit): ExistsElimination {
+    val statements = mutableListOf<NDStatement>()
+    val skolemConstant = VariableName()
+    val skolemConstantExpression = ExistsElimination.calcSkolemConstantExpression(target, skolemConstant)
+    statements.init(skolemConstant, skolemConstantExpression)
+    val element = ExistsElimination(target, statements, skolemConstant, skolemConstantExpression)
+    add(element)
+    return element
+}
+
+fun MutableList<NDStatement>.forAllElim(target: NDStatement, to: VariableName): ForAllElimination {
+    val elem = ForAllElimination(target, to)
+    add(elem)
+    return elem
 }
