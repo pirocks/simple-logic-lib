@@ -59,7 +59,8 @@ class TestWithLotsOfElim {
     val a = RelationAtom.newSimpleAtom()
     val b = RelationAtom.newSimpleAtom()
     val c = RelationAtom.newSimpleAtom()
-    val given = True() implies ((a and (b and c)) or False())
+    val andBlock = a and (((True() iff b) iff True()) and c)
+    val given = True() implies (andBlock or False())
     val toProof = b
     val proof = io.github.pirocks.nd.proof(setOf(given), toProof) {
         val givenStatement = given(given)
@@ -68,10 +69,10 @@ class TestWithLotsOfElim {
         val right = implies(assume(False())) {
             falsityElim(it, toProof)
         }
-        val left = implies(assume((a and (b and c)))) {
-            andElimLeft(andElimRight(it))
+        val left = implies(assume(andBlock)) {
+            iffElimRight(truth, iffElimLeft(truth, andElimLeft(andElimRight(it))))
         }
-        this.orElim(orExpr, left, right)
+        orElim(orExpr, left, right)
     }
 
     @Test

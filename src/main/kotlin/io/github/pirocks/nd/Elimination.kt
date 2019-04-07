@@ -151,7 +151,9 @@ class ImpliesElimination(val eliminationTarget: NDStatement, val impliesStatemen
  */
 class IFFEliminationLeft(val eliminationTarget: NDStatement, val iffStatement: NDStatement) : NDEliminationStatement() {
     override fun verify(context: VerifierContext): Boolean {
-        return eliminationTarget == (iffStatement.proves as IFF).left && context.known(eliminationTarget) && context.known(iffStatement)
+        return eliminationTarget.proves == (iffStatement.proves as IFF).right &&
+                context.known(eliminationTarget) &&
+                context.known(iffStatement)
     }
 
     override val proves: FOLFormula
@@ -160,7 +162,7 @@ class IFFEliminationLeft(val eliminationTarget: NDStatement, val iffStatement: N
         if (iffStatement.proves !is IFF) {
             throw MalformedProofException("IFF Elimination got something that was not an IFF")
         }
-        proves = (iffStatement.proves as IFF).right
+        proves = (iffStatement.proves as IFF).left
     }
 }
 
@@ -171,7 +173,7 @@ class IFFEliminationLeft(val eliminationTarget: NDStatement, val iffStatement: N
  */
 class IFFEliminationRight(val eliminationTarget: NDStatement, val iffStatement: NDStatement) : NDEliminationStatement() {
     override fun verify(context: VerifierContext): Boolean {
-        return eliminationTarget == (iffStatement.proves as IFF).right &&
+        return eliminationTarget.proves == (iffStatement.proves as IFF).left &&
                 context.known(eliminationTarget) &&
                 context.known(iffStatement)
     }
@@ -183,7 +185,7 @@ class IFFEliminationRight(val eliminationTarget: NDStatement, val iffStatement: 
         if (iffStatement.proves !is IFF) {
             throw MalformedProofException("IFF Elimination got something that was not an IFF")
         }
-        proves = (iffStatement.proves as IFF).left
+        proves = (iffStatement.proves as IFF).right
     }
 
 }
