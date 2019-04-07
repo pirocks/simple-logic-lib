@@ -12,9 +12,9 @@ class FOLSearchingKtTest {
     val var3 = VariableName()
     val var4 = VariableName()
     val var5 = VariableName()
-    val rel1 = RelationAtom(Relation.newUnEvaluatableRelation(), arrayOf(var1))
-    val rel2 = RelationAtom(Relation.newUnEvaluatableRelation(), arrayOf(var2))
-    val rel3 = RelationAtom(Relation.newUnEvaluatableRelation(), arrayOf(var3, var5))
+    val rel1 = PredicateAtom(Predicate.newUnEvaluatableRelation(), arrayOf(var1))
+    val rel2 = PredicateAtom(Predicate.newUnEvaluatableRelation(), arrayOf(var2))
+    val rel3 = PredicateAtom(Predicate.newUnEvaluatableRelation(), arrayOf(var3, var5))
     val expr = And(Or(rel1,False()),IFF(rel2, rel3))
 
     @Before

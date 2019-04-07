@@ -36,7 +36,7 @@ class BasicPropNDTest {
 }
 
 class LEMProof {
-    val p = RelationAtom.newSimpleAtom()
+    val p = PredicateAtom.newSimpleAtom()
     val toProve: FOLFormula = p or not(p)
     val proof = proof(emptySet(), toProve) {
         val notNotToProve = negationIntro(assume(not(toProve))) { notToProve ->
@@ -56,9 +56,9 @@ class LEMProof {
 }
 
 class TestWithLotsOfElim {
-    val a = RelationAtom.newSimpleAtom()
-    val b = RelationAtom.newSimpleAtom()
-    val c = RelationAtom.newSimpleAtom()
+    val a = PredicateAtom.newSimpleAtom()
+    val b = PredicateAtom.newSimpleAtom()
+    val c = PredicateAtom.newSimpleAtom()
     val andBlock = a and (((True() iff b) iff True()) and c)
     val given = True() implies (andBlock or False())
     val toProof = b

@@ -4,7 +4,7 @@ abstract class RewritingVisitor() {
 
     open fun rewrite(original: FOLFormula): FOLFormula {
         return when (original) {
-            is RelationAtom -> rewritePredicateAtom(original)
+            is PredicateAtom -> rewritePredicateAtom(original)
             is True -> rewriteTrue(original)
             is False -> rewriteFalse(original)
             is Negation -> rewriteNegation(original)
@@ -56,7 +56,7 @@ abstract class RewritingVisitor() {
         }
     }
 
-    open fun rewritePredicateAtom(toRewrite: RelationAtom): FOLFormula {
+    open fun rewritePredicateAtom(toRewrite: PredicateAtom): FOLFormula {
         return toRewrite
     }
 
@@ -101,8 +101,8 @@ public fun renameVar(formula: FOLFormula, from: VariableName, to: VariableName):
             return Exists(rewrite(toRewrite.child), if (from == toRewrite.varName) to else toRewrite.varName)
         }
 
-        override fun rewritePredicateAtom(toRewrite: RelationAtom): RelationAtom {
-            return RelationAtom(toRewrite.relation, toRewrite.expectedArgs.map {
+        override fun rewritePredicateAtom(toRewrite: PredicateAtom): PredicateAtom {
+            return PredicateAtom(toRewrite.predicate, toRewrite.expectedArgs.map {
                 if (it == from) to else it
             }.toTypedArray())
         }
@@ -115,7 +115,7 @@ public fun renameVar(formula: FOLFormula, from: VariableName, to: VariableName):
 fun renameAllVars(formula: FOLFormula): FOLFormula {
     val vars = hashSetOf<VariableName>()
     object : RewritingVisitor() {
-        override fun rewritePredicateAtom(toRewrite: RelationAtom): FOLFormula {
+        override fun rewritePredicateAtom(toRewrite: PredicateAtom): FOLFormula {
             toRewrite.expectedArgs.forEach { assert(it in vars) }
             return super.rewritePredicateAtom(toRewrite)
         }

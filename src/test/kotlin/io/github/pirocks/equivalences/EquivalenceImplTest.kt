@@ -15,8 +15,8 @@ class PropositionalEquivalenceImplTest {
     lateinit var formula1 : FOLFormula
     lateinit var formula2 : FOLFormula
     lateinit var formula3 : FOLFormula
-    lateinit var relation1: RelationAtom
-    lateinit var relation2: RelationAtom
+    lateinit var predicate1: PredicateAtom
+    lateinit var predicate2: PredicateAtom
     lateinit var equivalance1: ArbitraryPatternBasedRewriter
     lateinit var equivalance2: ArbitraryPatternBasedRewriter
     lateinit var equivalance3: ArbitraryPatternBasedRewriter
@@ -25,10 +25,10 @@ class PropositionalEquivalenceImplTest {
 
     @Before
     fun setUp() {
-        relation1 = RelationAtom.newSimpleAtom()
-        relation2 = RelationAtom.newSimpleAtom()
-        formula1 = And(Or(And(True(), relation1), False()), Or(And(True(), relation1), True()))
-        formula2 = Implies(And(False(), relation2), And(True(), Or(relation2, False())))
+        predicate1 = PredicateAtom.newSimpleAtom()
+        predicate2 = PredicateAtom.newSimpleAtom()
+        formula1 = And(Or(And(True(), predicate1), False()), Or(And(True(), predicate1), True()))
+        formula2 = Implies(And(False(), predicate2), And(True(), Or(predicate2, False())))
         formula3 = Implies(formula1, formula2)
         pattern1 = And(True(), AllowAllVars())
         pattern2 = Or(And(True(), AllowAllVars()), AllowAllVars())
@@ -108,7 +108,7 @@ class MultipleSamePatternsTest{
 }
 
 class FOLEquivalenceTest{
-    val alwaysFalsePredicate = Relation.newUnEvaluatableRelation()
+    val alwaysFalsePredicate = Predicate.newUnEvaluatableRelation()
     lateinit var formula1: FOLFormula;
     lateinit var formula2: FOLFormula;
     lateinit var formula3: FOLFormula;
@@ -145,7 +145,7 @@ class FOLEquivalenceTest{
     private fun setUpFormula4() {
         val forAllVar1 = VariableName()
 
-        val predicateAtom2 = RelationAtom(alwaysFalsePredicate, arrayOf(forAllVar1))
+        val predicateAtom2 = PredicateAtom(alwaysFalsePredicate, arrayOf(forAllVar1))
         formula4 = And(ForAll(Exists(predicateAtom2), forAllVar1), False())
     }
 
@@ -158,8 +158,8 @@ class FOLEquivalenceTest{
         val forAllVar2 = VariableName()
         val existsVar3 = VariableName()
 
-        val predicateAtom1 = RelationAtom(alwaysFalsePredicate, arrayOf(existsVar3, forAllVar2))
-        val predicateAtom2 = RelationAtom(alwaysFalsePredicate, arrayOf(forAllVar1))
+        val predicateAtom1 = PredicateAtom(alwaysFalsePredicate, arrayOf(existsVar3, forAllVar2))
+        val predicateAtom2 = PredicateAtom(alwaysFalsePredicate, arrayOf(forAllVar1))
         formula2 = And(ForAll(Exists(predicateAtom1, existsVar3), forAllVar2), ForAll(predicateAtom2, forAllVar1))
     }
 

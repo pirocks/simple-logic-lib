@@ -16,10 +16,10 @@ class FOLRewritingKtTest {
 
     @Before
     fun setUp() {
-        val alwaysFalse = Relation({ false })
-        val zeroParameterPredicate = RelationAtom(alwaysFalse, arrayOf())
-        val twoParameterPredicateTest = RelationAtom(alwaysFalse, arrayOf(folVar, existsVar))
-        val twoParameterPredicateExpected = RelationAtom(alwaysFalse, arrayOf(folVarExpected, existsVarExpected))
+        val alwaysFalse = Predicate({ false })
+        val zeroParameterPredicate = PredicateAtom(alwaysFalse, arrayOf())
+        val twoParameterPredicateTest = PredicateAtom(alwaysFalse, arrayOf(folVar, existsVar))
+        val twoParameterPredicateExpected = PredicateAtom(alwaysFalse, arrayOf(folVarExpected, existsVarExpected))
         testExpression = ForAll(Exists(And(zeroParameterPredicate, twoParameterPredicateTest), existsVar), folVar)
         expected = ForAll(Exists(And(zeroParameterPredicate, twoParameterPredicateExpected), existsVarExpected), folVarExpected)
     }
