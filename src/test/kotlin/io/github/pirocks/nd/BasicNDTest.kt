@@ -80,3 +80,51 @@ class TestWithLotsOfElim {
         Assert.assertTrue(proof.verify())
     }
 }
+
+class ForAllOverAnd {
+    val forAllVar = VariableName()
+    val A = PredicateAtom(Predicate.newUnEvaluatableRelation(), arrayOf(forAllVar))
+    val B = PredicateAtom(Predicate.newUnEvaluatableRelation(), arrayOf(forAllVar))
+    val given = ForAll(A and B, forAllVar)
+    val toProof = ForAll(A, forAllVar) and ForAll(B, forAllVar)
+    val proof = io.github.pirocks.nd.proof(toProof, setOf(given), verify = false) {
+        val givenStat = given(given)
+        val leftForAll = forAllIntro { newVar ->
+            val aAndb = forAllElim(givenStat, newVar)
+            andElimLeft(aAndb)
+        }
+        val rightForAll = forAllIntro { newVar ->
+            val aAndb = forAllElim(givenStat, newVar)
+            andElimRight(aAndb)
+        }
+        andIntro(leftForAll, rightForAll)
+    }
+
+    @Test
+    fun doTest() {
+        Assert.assertTrue(proof.verify())
+    }
+}
+
+class ExistsOverAnd {
+    val existsVar = VariableName()
+    val A = PredicateAtom(Predicate.newUnEvaluatableRelation(), arrayOf(existsVar))
+    val B = PredicateAtom(Predicate.newUnEvaluatableRelation(), arrayOf(existsVar))
+    val given = Exists(A and B, existsVar)
+    val toProof = Exists(A, existsVar) and Exists(B, existsVar)
+    val proof = io.github.pirocks.nd.proof(toProof, setOf(given), verify = false) {
+        val givenStat = given(given)
+        val left = existsElim(givenStat) { skolemConst: VariableName, skolemConstExpr: AssumptionStatement ->
+            existsIntro(andElimLeft(skolemConstExpr), skolemConst)
+        }
+        val right = existsElim(givenStat) { skolemConst: VariableName, skolemConstExpr: AssumptionStatement ->
+            existsIntro(andElimRight(skolemConstExpr), skolemConst)
+        }
+        andIntro(left, right)
+    }
+
+    @Test
+    fun doTest() {
+        Assert.assertTrue(proof.verify())
+    }
+}

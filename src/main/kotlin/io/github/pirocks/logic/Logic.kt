@@ -97,7 +97,7 @@ class EqualityContext(
         val uuidVariableMappings: Map<VariableName, VariableName> = mapOf())
 
 class HashContext(
-        val variableNumberMappings: Map<VariableName, Int> = mutableMapOf()
+        val variableNumberMappings: MutableMap<VariableName, Int> = mutableMapOf()
 )
 
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
@@ -159,6 +159,7 @@ sealed class BinaryRelation(open val left: FOLFormula, open val right: FOLFormul
 sealed class Quantifier(open val child: FOLFormula, open val varName: VariableName = VariableName()) : FOLFormula() {
     abstract val operatorHashCode: Int;
     override fun hashCodeImpl(hashContext: HashContext): Int {
+        hashContext.variableNumberMappings[varName] = hashContext.variableNumberMappings.size
         var hash = operatorHashCode
         hash = 31*hash + varName.hashCode()
         hash = 31*hash + child.hashCodeImpl(hashContext)
@@ -263,7 +264,8 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
     override fun hashCodeImpl(hashContext: HashContext): Int {
         var hash = predicate.uuid.hashCode()
         expectedArgs.forEach {
-            hash = 31*hash + hashContext.variableNumberMappings[it]!!
+            hash = 31 * hash + ((hashContext.variableNumberMappings[it])
+                    ?: it.uuid.hashCode())//handle unbounded variables
         }
         return hash
     }
