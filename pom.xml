@@ -8,8 +8,8 @@
     <description>A simple library for working with first order logic and natural deduction proofs</description>
 
     <groupId>io.github.pirocks</groupId>
-    <artifactId>nd-thing</artifactId>
-    <version>0.0.7</version>
+    <artifactId>simple-logic-lib</artifactId>
+    <version>0.0.8-SNAPSHOT</version>
 
     <url>https://github.com/pirocks/simple-logic-lib</url>
     <scm>

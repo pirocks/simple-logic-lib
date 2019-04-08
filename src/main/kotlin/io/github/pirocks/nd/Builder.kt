@@ -24,42 +24,29 @@ fun MutableList<NDStatement>.implies(assumptionStatement: AssumptionStatement, i
 
 fun MutableList<NDStatement>.trueIntro(): TruthIntroduction = TruthIntroduction().also { add(it) }
 
-
 fun MutableList<NDStatement>.andIntro(left: NDStatement, right: NDStatement): AndIntroduction = AndIntroduction(left, right).also { add(it) }
-
 
 fun MutableList<NDStatement>.andElimLeft(target: NDStatement): AndEliminationLeft = AndEliminationLeft(target).also { add(it) }
 
-
 fun MutableList<NDStatement>.andElimRight(target: NDStatement): AndEliminationRight = AndEliminationRight(target).also { add(it) }
-
 
 fun MutableList<NDStatement>.orElim(target: NDStatement, left: NDStatement, right: NDStatement): OrElimination = OrElimination(target, left, right).also { add(it) }
 
-
 fun MutableList<NDStatement>.impliesElim(eliminationTarget: NDStatement, impliesStatement: NDStatement): ImpliesElimination = ImpliesElimination(eliminationTarget, impliesStatement).also { add(it) }
-
 
 fun MutableList<NDStatement>.iffElimLeft(eliminationTarget: NDStatement, iffStatement: NDStatement): IFFEliminationLeft = IFFEliminationLeft(eliminationTarget, iffStatement).also { add(it) }
 
-
 fun MutableList<NDStatement>.iffElimRight(eliminationTarget: NDStatement, iffStatement: NDStatement): IFFEliminationRight = IFFEliminationRight(eliminationTarget, iffStatement).also { add(it) }
-
 
 fun MutableList<NDStatement>.doubleNegElim(eliminationTarget: NDStatement): DoubleNegationElimination = DoubleNegationElimination(eliminationTarget).also { add(it) }
 
-
 fun MutableList<NDStatement>.falsityElim(eliminationTarget: NDStatement, to: FOLFormula): FalsityElimination = FalsityElimination(eliminationTarget, to).also { add(it) }
-
 
 fun MutableList<NDStatement>.orIntro(left: FOLFormula, right: NDStatement): OrIntroductionLeft = OrIntroductionLeft(left, right).also { add(it) }
 
-
 fun MutableList<NDStatement>.orIntro(left: NDStatement, right: FOLFormula): OrIntroductionRight = OrIntroductionRight(left, right).also { add(it) }
 
-
 fun MutableList<NDStatement>.iFFIntro(leftImplication: NDStatement, rightImplication: NDStatement): IFFIntroduction = IFFIntroduction(leftImplication, rightImplication).also { add(it) }
-
 
 fun MutableList<NDStatement>.negationIntro(assumptionStatement: AssumptionStatement, init: MutableList<NDStatement>.(assumption: NDStatement) -> Unit): NegationIntroduction {
     val statements = mutableListOf<NDStatement>()
