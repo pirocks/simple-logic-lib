@@ -67,6 +67,7 @@ class VariableName(val uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" 
 }
 
 data class Signature(val elements: Set<SignatureElement>, val predicates: Set<Predicate>)
+
 class Predicate(val implmentation: (Array<VariableValue>) -> Boolean, val uuid: UUID = UUIDUtil.generateUUID(), name: String = "P" + getAndIncrementPredicateCount().toString()) {
     companion object {
         @JvmStatic
