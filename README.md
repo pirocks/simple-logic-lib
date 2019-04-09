@@ -1,7 +1,7 @@
 # simple-logic-lib
 A simple logic library. Currently a work in progress. Jars on Maven central should be working/useable.
 
-Current features include:
+####Current Features:
 - A library for manipulating first order logic expressions. 
 - Outputting to mathml/html
 - Outputing to prefix notation/easily parseable string form
@@ -11,6 +11,8 @@ Current features include:
 - Kotlin DSL builder syntax for natural deduction proofs. 
 - Infix builder functions for logic
 
+
+####Maven Dependency
 ```xml
 <dependency>
   <groupId>io.github.pirocks</groupId>
@@ -19,4 +21,10 @@ Current features include:
 </dependency>
 ```
  
-
+####Feature wishlist/in progress
+- Html/mathml output for natural deduction
+- Ability to create custom rules for natural deduction
+- Better mathml output/compatibility with more browsers
+- Improved documentation 
+- Usage Examples
+- Compatibility/interop with simple-algebra-lib
