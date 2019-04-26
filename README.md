@@ -1,7 +1,7 @@
 # simple-logic-lib
 A simple logic library. Currently a work in progress. Jars on Maven central should be working/useable.
 
-####Current Features:
+#### Current Features:
 - A library for manipulating first order logic expressions. 
 - Outputting to mathml/html
 - Outputing to prefix notation/easily parseable string form
@@ -12,7 +12,7 @@ A simple logic library. Currently a work in progress. Jars on Maven central shou
 - Infix builder functions for logic
 
 
-####Maven Dependency
+#### Maven Dependency
 ```xml
 <dependency>
   <groupId>io.github.pirocks</groupId>
@@ -21,7 +21,7 @@ A simple logic library. Currently a work in progress. Jars on Maven central shou
 </dependency>
 ```
  
-####Feature wishlist/in progress
+#### Feature wishlist/in progress
 - Html/mathml output for natural deduction
 - Ability to create custom rules for natural deduction
 - Better mathml output/compatibility with more browsers
