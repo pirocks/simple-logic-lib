@@ -16,6 +16,7 @@ class Prover9Test{
     @Test
     fun doTest(){
         val prover = Prover9()
-        prover.prove(listOf(a,b),expectedRes)
+        val proof = prover.prove(listOf(a, b), expectedRes)
+        proof.text.any { it.contains("\$F") }
     }
 }
