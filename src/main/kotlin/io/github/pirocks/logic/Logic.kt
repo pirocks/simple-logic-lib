@@ -121,9 +121,13 @@ sealed class FOLFormula : Formula, FOLPattern {
     abstract fun evaluate(ev: EvalContext): Boolean
 
     abstract fun toMathML2(): String
+
     fun toHtml(): String = ("<math> <mrow>" + toMathML2() + "</mrow> </math>").replace("\\s(?!separators)".toRegex(), "").trim().trimIndent()
+
     abstract fun toPrefixNotation(): String
+
     override fun hashCode(): Int = hashCodeImpl()
+
     abstract fun hashCodeImpl(hashContext: HashContext = HashContext()) : Int
 
     override fun equals(other: Any?): Boolean {
@@ -132,6 +136,7 @@ sealed class FOLFormula : Formula, FOLPattern {
         return this.sameAs(other as FOLFormula)
     }
 
+    abstract fun prover9Form() : String
 }
 
 sealed class BinaryRelation(open val left: FOLFormula, open val right: FOLFormula) : FOLFormula() {
@@ -205,6 +210,8 @@ sealed class Quantifier(open val child: FOLFormula, open val varName: VariableNa
 }
 
 class True : FOLFormula() {
+    override fun prover9Form(): String = "\$T"
+
     override fun hashCodeImpl(hashContext: HashContext): Int = 31// can be any arbitrary, reasonably sized prime
 
     override fun toPrefixNotation(): String = "T"
@@ -230,6 +237,8 @@ class True : FOLFormula() {
 }
 
 class False : FOLFormula() {
+    override fun prover9Form(): String = "\$F"
+
     override fun hashCodeImpl(hashContext: HashContext): Int = 43
 
     override fun toPrefixNotation(): String = "F"
@@ -255,6 +264,13 @@ class False : FOLFormula() {
 }
 
 open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<VariableName>) : FOLFormula() {
+    override fun prover9Form(): String {
+        return if(expectedArgs.isEmpty()) {
+            predicate.name
+        }else {
+            """${predicate.name}(${expectedArgs.joinToString { it.name }})"""
+        }
+    }
 
     companion object {
         fun newSimpleAtom(): PredicateAtom {
@@ -319,6 +335,8 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
 }
 
 class And(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+    override fun prover9Form(): String = "(${left.prover9Form()} & ${right.prover9Form()})"
+
     override val operatorHashCode: Int
         get() = 31
 
@@ -337,6 +355,8 @@ class And(override val left: FOLFormula, override val right: FOLFormula) : Binar
 }
 
 class Or(override val left: FOLFormula, override val right: FOLFormula) : BinaryRelation(left, right) {
+    override fun prover9Form(): String = "(${left.prover9Form()} | ${right.prover9Form()})"
+
     override val operatorHashCode: Int
         get() = 41
 
@@ -346,6 +366,10 @@ class Or(override val left: FOLFormula, override val right: FOLFormula) : Binary
 }
 
 class Negation(val child: FOLFormula) : FOLFormula() {
+    override fun prover9Form(): String {
+        return "(-${child.prover9Form()})"
+    }
+
     override fun hashCodeImpl(hashContext: HashContext): Int = 107*31 + child.hashCodeImpl(hashContext)
 
     override fun toPrefixNotation(): String = """(neg ${child.toPrefixNotation()})"""
@@ -364,6 +388,8 @@ typealias Not = Negation
 
 
 class Implies(val given: FOLFormula, val result: FOLFormula) : BinaryRelation(given, result) {
+    override fun prover9Form(): String = "(${given.prover9Form()}->${result.prover9Form()})"
+
     override val operatorHashCode: Int
         get() = 43
 
@@ -373,6 +399,8 @@ class Implies(val given: FOLFormula, val result: FOLFormula) : BinaryRelation(gi
 }
 
 class IFF(val one: FOLFormula, val two: FOLFormula) : BinaryRelation(one, two) {
+    override fun prover9Form(): String = "${one.prover9Form()} <-> ${two.prover9Form()}"
+
     override val operatorHashCode: Int
         get() = 101
 
@@ -382,6 +410,10 @@ class IFF(val one: FOLFormula, val two: FOLFormula) : BinaryRelation(one, two) {
 }
 
 class ForAll(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+    override fun prover9Form(): String {
+        return "(all ${varName.name} ${child.prover9Form()})"
+    }
+
     override val operatorHashCode: Int
         get() = 71*107
 
@@ -401,6 +433,10 @@ class ForAll(override val child: FOLFormula, override val varName: VariableName 
 }
 
 class Exists(override val child: FOLFormula, override val varName: VariableName = VariableName()) : Quantifier(child, varName) {
+    override fun prover9Form(): String {
+        return "(exists ${varName.name} ${child.prover9Form()} )"
+    }
+
     override val operatorHashCode: Int
         get() = 73*103
 
@@ -458,6 +494,10 @@ sealed class PatternMember : FOLFormula(){
 
 
 class AllowAllVars : PatternMember(){
+    override fun prover9Form(): String {
+        TODO("not implemented, as putting patterns into prover9 is a little odd")
+    }
+
     override fun hashCodeImpl(hashContext: HashContext): Int = 103*101
 
     override fun toPrefixNotation(): String = """(Pattern matches anything Pattern#${super.hashCode()})"""
@@ -487,6 +527,10 @@ class AllowAllVars : PatternMember(){
 }
 
 class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMember() {
+    override fun prover9Form(): String {
+        TODO("not implemented, as putting patterns into prover9 is a little odd")
+    }
+
     /**
      * todo duplication with predicate atom
      */
@@ -526,6 +570,10 @@ class AllowOnlyCertainVars(val vars: Array<VariableName>) : PatternMember() {
 }
 
 class ForbidCertainVars(val vars: Array<VariableName>) : PatternMember() {
+    override fun prover9Form(): String {
+        TODO("not implemented, as putting patterns into prover9 is a little odd")
+    }
+
     override fun hashCodeImpl(hashContext: HashContext): Int {
         var hash = super.hashCode()
         vars.forEach {

@@ -1,6 +1,8 @@
 package io.github.pirocks.nd
 
 import io.github.pirocks.logic.FOLFormula
+import io.github.pirocks.provers.Proof
+import java.io.Serializable
 import java.util.*
 
 //todo could be faster b/c iterating through stack
@@ -31,8 +33,7 @@ class VerifierContext(private val alreadyVerified: Stack<MutableSet<NDStatement>
 
 class MalformedProofException(msg: String) : Exception(msg)
 
-
-class NDProof(val statements: List<NDStatement>, val given: Set<GivenStatement>, val result: FOLFormula) {
+class NDProof(val statements: List<NDStatement>, val given: Set<GivenStatement>, val result: FOLFormula) : Serializable, Proof {
     fun verify(): Boolean {
         val stack = Stack<MutableSet<NDStatement>>()
         stack.push(given.toMutableSet())
@@ -42,7 +43,7 @@ class NDProof(val statements: List<NDStatement>, val given: Set<GivenStatement>,
     }
 }
 
-interface NDStatement {
+interface NDStatement : Serializable{
     fun verify(context: VerifierContext): Boolean
     val proves: FOLFormula
     override fun equals(other: Any?): Boolean

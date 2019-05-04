@@ -200,7 +200,7 @@ class DoubleNegationElimination(val eliminationTarget: NDStatement) : NDEliminat
 
     init {
         if ((eliminationTarget.proves as? Not)?.child !is Not) {
-            throw MalformedProofException("Double negation eliminationg got something which wasn't double negated.")
+            throw MalformedProofException("Double negation elimination got something which wasn't double negated.")
         }
         proves = ((eliminationTarget.proves as Not).child as Not).child
     }
