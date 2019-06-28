@@ -35,7 +35,7 @@ class DefaultFOLParser : FOLParser{
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
 
-        override fun visitImplies(ctx: DefaultParser.ImpliesContext?): FOLFormula {
+        override fun visitImplies(ctx: DefaultParser.ImpliesContext): FOLFormula {
             val left = visit(ctx.formula(0))
             val right = visit(ctx.formula(1))
             return Implies(left, right)//todo duplication
