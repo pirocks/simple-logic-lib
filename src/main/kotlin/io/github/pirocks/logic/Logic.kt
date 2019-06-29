@@ -68,11 +68,10 @@ class VariableName(val uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" 
 
 data class Signature(val elements: Set<SignatureElement>, val predicates: Set<Predicate>)
 
-class Predicate(val implmentation: (Array<VariableValue>) -> Boolean, val uuid: UUID = UUIDUtil.generateUUID(), name: String = "P" + getAndIncrementPredicateCount().toString()) {
+class Predicate(val implmentation: (Array<VariableValue>) -> Boolean, val uuid: UUID = UUIDUtil.generateUUID(), val name: String = "P" + getAndIncrementPredicateCount().toString()) {
     companion object {
         @JvmStatic
         private var predicateCount = 0;
-
         fun getAndIncrementPredicateCount(): Int {
             predicateCount++;
             return predicateCount - 1;
@@ -83,8 +82,9 @@ class Predicate(val implmentation: (Array<VariableValue>) -> Boolean, val uuid: 
         }
     }
 
-    val name: String
-        get() = nameIndex[uuid]!!
+    fun sameAs(predicate: Predicate): Boolean {
+        return this.name == predicate.name
+    }
 
     init {
         nameIndex[uuid] = name
@@ -287,7 +287,7 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
         return hash
     }
 
-    override fun toPrefixNotation(): String = """(${predicateString()} ${expectedArgs.map { it.name }.foldRight("",{s, acc -> s + " " + acc })}"""
+    override fun toPrefixNotation(): String = """(${predicateString()} (${expectedArgs.map { it.name }.foldRight("",{s, acc -> "$s $acc" })}))"""
 
     override fun sameAs(other: FOLFormula): Boolean {
         //this should only be called when comparing to atoms. Anything wrapped in quantifiers should not call this:
@@ -307,7 +307,7 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
         if (other.expectedArgs.size != expectedArgs.size) {
             return false
         }
-        if (other.predicate.uuid != predicate.uuid) {
+        if (!other.predicate.sameAs(predicate)) {
             return false
         }
         fun translateExpectedArgs(toTranslate: Array<VariableName>): Array<VariableName?> = toTranslate.map { equalityContext.uuidVariableMappings[it]!! }.toTypedArray()// okay to assert not null, because there are no free vars. So there shouldn't be unknown vars
@@ -328,9 +328,11 @@ open class PredicateAtom(val predicate: Predicate, val expectedArgs: Array<Varia
         return predicate.implmentation.invoke(notNullArgs)
     }
 
-    private fun predicateString(): String = "predicateNumber" + predicate.hashCode().toString(16)
+//    private fun predicateString(): String = "predicateNumber" + predicate.hashCode().toString(16)
 
-    override fun toMathML2(): String = """<mrow><mi>${predicateString()}</mi><mfenced>${expectedArgs.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
+    private fun predicateString(): String = predicate.name
+
+            override fun toMathML2(): String = """<mrow><mi>${predicateString()}</mi><mfenced>${expectedArgs.map { "<mrow>" + it.name + "</mrow>" }.reduceRight { s: String, acc: String -> s + acc }}</mfenced></mrow>"""
 
 }
 

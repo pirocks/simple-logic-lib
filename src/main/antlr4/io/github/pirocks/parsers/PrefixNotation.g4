@@ -1,4 +1,4 @@
-grammar Default;
+grammar PrefixNotation;
 
 OPEN_PAREN : '(';
 CLOSE_PAREN : ')';
@@ -19,11 +19,11 @@ formula: and | or | not | forall | implies | iff | exists | false_ | true_ | pre
 
 and: '(' 'and' formula formula ')';
 or: '(' 'or' formula formula ')';
-not: '(' 'not' formula formula ')';
+not: '(' 'not' formula ')';
 implies: '(' 'implies' formula formula ')';
 iff: '(' 'iff' formula formula ')';
 false_: 'F';
 true_: 'T';
-forall: 'forall';
-exists: 'exists';
-predicateAtom : IDENT '(' (IDENT (',' IDENT)*)? ')';
+forall: '(' 'forall' IDENT formula')';
+exists: '(' 'exists' IDENT formula ')';
+predicateAtom : '(' IDENT '(' IDENT* ')' ')';
