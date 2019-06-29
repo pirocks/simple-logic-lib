@@ -104,7 +104,7 @@ class HashContext(
 class EvalContext(val signature: Signature, val variables: MutableMap<VariableName, VariableValue>)
 
 
-sealed class FOLFormula : Formula, FOLPattern {
+abstract class FOLFormula : Formula, FOLPattern {
 
     internal open fun sameAs(other: FOLFormula): Boolean {
         return sameAsImpl(other, EqualityContext())
@@ -139,7 +139,7 @@ sealed class FOLFormula : Formula, FOLPattern {
     abstract fun prover9Form() : String
 }
 
-sealed class BinaryRelation(open val left: FOLFormula, open val right: FOLFormula) : FOLFormula() {
+abstract class BinaryRelation(open val left: FOLFormula, open val right: FOLFormula) : FOLFormula() {
     override val subFormulas: Array<FOLFormula>
         get() = arrayOf(left, right)
 
@@ -162,7 +162,7 @@ sealed class BinaryRelation(open val left: FOLFormula, open val right: FOLFormul
     }
 }
 
-sealed class Quantifier(open val child: FOLFormula, open val varName: VariableName = VariableName()) : FOLFormula() {
+abstract class Quantifier(open val child: FOLFormula, open val varName: VariableName = VariableName()) : FOLFormula() {
     abstract val operatorHashCode: Int;
     override fun hashCodeImpl(hashContext: HashContext): Int {
         hashContext.variableNumberMappings[varName] = hashContext.variableNumberMappings.size
