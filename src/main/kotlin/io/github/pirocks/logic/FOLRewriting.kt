@@ -11,7 +11,7 @@ abstract class RewritingVisitor() {
             is BinaryRelation -> rewriteBinaryRelation(original)
             is Quantifier -> rewriteQuantifier(original)
             is PatternMember -> rewritePatternMember(original)
-            else -> TODO("Part of visitor not implemented")
+            else -> TODO("Part of visitor not implemented for ${original.javaClass}")
         }
     }
 
@@ -47,7 +47,7 @@ abstract class RewritingVisitor() {
             is Or -> rewriteOr(toRewrite)
             is Implies -> rewriteImplies(toRewrite)
             is IFF -> rewriteIFF(toRewrite)
-            else -> TODO("Part of visitor not implemented")
+            else -> TODO("Part of visitor not implemented  ${toRewrite.javaClass}")
         }
     }
 
@@ -55,7 +55,7 @@ abstract class RewritingVisitor() {
         return when(toRewrite){
             is ForAll -> rewriteForAll(toRewrite)
             is Exists -> rewriteExists(toRewrite)
-            else -> TODO("Part of visitor not implemented")
+            else -> TODO("Part of visitor not implemented  ${toRewrite.javaClass}")
         }
     }
 

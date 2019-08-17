@@ -2,6 +2,7 @@ package io.github.pirocks.util
 
 import java.util.*
 import java.util.logging.Logger
+import kotlin.math.abs
 
 object UUIDUtil {
     val logger = Logger.getLogger(UUIDUtil.javaClass.name)
@@ -18,7 +19,7 @@ object UUIDUtil {
         return randomUUID
     }
 
-    fun toPrettyString(uuid: UUID): String = "VariableNumber" + Math.abs((uuid.mostSignificantBits + uuid.leastSignificantBits).toInt()).toShort().toString(16).replace('-','0')
+    fun toPrettyString(uuid: UUID): String = "VariableNumber" + abs((uuid.mostSignificantBits + uuid.leastSignificantBits).toInt()).toShort().toString(16).replace('-', '0')
 
     fun toMathML2(uuid: UUID): String = "<mi>" + toPrettyString(uuid) + "</mi>"
 

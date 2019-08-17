@@ -1,6 +1,7 @@
 package io.github.pirocks.logic
 
 import io.github.pirocks.equivalences.MatchSubstitutions
+import io.github.pirocks.smt.Solver
 import io.github.pirocks.util.UUIDUtil
 import java.io.Serializable
 import java.util.*
@@ -36,6 +37,7 @@ interface FOLPattern: Formula {
 
 data class SignatureElement(val uuid: UUID)
 data class VariableValue(val variableName: VariableName, val value: SignatureElement)
+
 class VariableName(val uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" + varCount.getAndIncrement().toString()) : Serializable {
     companion object {
         @JvmStatic
@@ -49,7 +51,6 @@ class VariableName(val uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is VariableName) return false
-
         if (uuid != other.uuid) return false
 
         return true
@@ -62,8 +63,6 @@ class VariableName(val uuid: UUID = UUIDUtil.generateUUID(), name: String = "V" 
     init {
         nameIndex[uuid] = name
     }
-
-
 }
 
 data class Signature(val elements: Set<SignatureElement>, val predicates: Set<Predicate>)
@@ -89,7 +88,6 @@ class Predicate(val implmentation: (Array<VariableValue>) -> Boolean, val uuid: 
     init {
         nameIndex[uuid] = name
     }
-
 }
 
 class EqualityContext(
@@ -137,6 +135,17 @@ abstract class FOLFormula : Formula, FOLPattern {
     }
 
     abstract fun prover9Form() : String
+
+    internal abstract fun toSMTLibFormImpl(freeVars: MutableList<VariableName>): String
+
+    fun toSMTLibForm(): String {
+        val freeVars = mutableListOf<VariableName>()
+
+    }
+
+    fun isSatisfiable(solver: Solver): String {
+        val smtForm = toSMTLibForm()
+    }
 }
 
 abstract class BinaryRelation(open val left: FOLFormula, open val right: FOLFormula) : FOLFormula() {
@@ -222,12 +231,12 @@ class True : FOLFormula() {
         get() = arrayOf()
 
     override fun evaluate(ev: EvalContext): Boolean = true
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         return true
     }
-
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
@@ -497,7 +506,7 @@ sealed class PatternMember : FOLFormula(){
 
 class AllowAllVars : PatternMember(){
     override fun prover9Form(): String {
-        TODO("not implemented, as putting patterns into prover9 is a little odd")
+        TODO("not implemented, as putting patterns into prover9 is an weird thing to do")
     }
 
     override fun hashCodeImpl(hashContext: HashContext): Int = 103*101
